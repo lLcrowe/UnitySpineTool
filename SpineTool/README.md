@@ -47,7 +47,47 @@ Spine JSON 파일에 이벤트를 **Unity 에디터에서 직접** 추가/수정
 5. 이벤트 이름, 시간, 파라미터 설정
 6. `Save to JSON` 클릭
 
-### 🏷️ 3. Spine Symbol Data (메타데이터 관리)
+### ⚡ 3. Spine Event Injector (런타임 이벤트 주입)
+
+**코드만으로** Spine 애니메이션에 이벤트를 주입! Attribute 기반의 강력한 이벤트 시스템입니다.
+
+#### 특징:
+- ✅ Attribute 하나로 이벤트 자동 등록
+- ✅ 정확한 타이밍 제어 (정규화된 시간 0.0 ~ 1.0)
+- ✅ 파라미터 전달 지원 (Int, Float, String)
+- ✅ Spine 툴 이벤트와 통합 가능
+- ✅ 여러 애니메이션에 여러 이벤트 등록 가능
+
+#### 사용 방법:
+
+```csharp
+using SpineTool;
+
+// Attribute로 이벤트 등록
+[InjectSpineEvent("attack", "OnHitImpact", 0.5f, IntParameter = 50)]
+public class MyCharacter : MonoBehaviour
+{
+    // 1. SpineEventInjector 컴포넌트 추가 필요
+    // 2. SkeletonAnimation 컴포넌트 필요
+
+    // 이벤트 핸들러 (자동 호출됨)
+    void OnHitImpact(SpineEventData data)
+    {
+        int damage = data.IntParameter; // 50
+        Debug.Log($"Hit! Damage: {damage}");
+    }
+}
+```
+
+**여러 이벤트 등록:**
+```csharp
+[InjectSpineEvent("attack", "OnAttackStart", 0.0f)]
+[InjectSpineEvent("attack", "OnHitImpact", 0.5f, IntParameter = 50)]
+[InjectSpineEvent("attack", "OnAttackEnd", 1.0f)]
+public class CombatCharacter : MonoBehaviour { ... }
+```
+
+### 🏷️ 4. Spine Symbol Data (메타데이터 관리)
 
 ScriptableObject 기반 애니메이션 메타데이터 관리 시스템
 
@@ -73,11 +113,16 @@ public class MySymbolData : SpineSymbolData
 SpineTool/
 ├── Scripts/
 │   ├── Runtime/
+│   │   ├── SpineEventInjector.cs                   # 🆕 이벤트 주입 시스템
+│   │   ├── SpineEventInjectionAttribute.cs         # 🆕 Attribute & EventData
 │   │   └── SpineSymbolData.cs                      # 메타데이터 관리
 │   └── Editor/
 │       ├── SpineAnimationPreviewWindow.cs          # 애니메이션 프리뷰 윈도우
 │       ├── SpineAnimationInspectorExtension.cs     # 인스펙터 확장
 │       └── SpineEventInjectorEditor.cs             # 이벤트 편집기
+├── Examples/
+│   ├── SpineCharacterExample.cs                    # 🆕 기본 사용 예제
+│   └── SpineComboSystemExample.cs                  # 🆕 콤보 시스템 예제
 └── README.md
 ```
 
@@ -108,7 +153,7 @@ git submodule add https://github.com/yourusername/UnitySpineTool.git Assets/Spin
 
 ## 🎯 사용 예시
 
-### 에디터 모드 애니메이션 테스트
+### 1. 에디터 모드 애니메이션 테스트
 
 ```
 1. Scene에 Spine 캐릭터 배치
@@ -118,41 +163,82 @@ git submodule add https://github.com/yourusername/UnitySpineTool.git Assets/Spin
 5. 플레이 모드 불필요!
 ```
 
-### 이벤트 추가하기
-
-```
-1. Spine Event Editor 열기
-2. SkeletonDataAsset 선택
-3. "attack" 애니메이션 선택
-4. 0.5초 지점에 "hit_impact" 이벤트 추가
-5. Int Parameter: 50 (데미지)
-6. 저장!
-```
-
-### 런타임에서 이벤트 받기
+### 2. 이벤트 주입 (Attribute 방식) ⭐ 추천
 
 ```csharp
-using Spine;
-using Spine.Unity;
+using SpineTool;
 using UnityEngine;
 
-public class MySpineCharacter : MonoBehaviour
+// Attribute로 이벤트 자동 등록!
+[InjectSpineEvent("attack", "OnAttackStart", 0.0f)]
+[InjectSpineEvent("attack", "OnHitImpact", 0.5f, IntParameter = 50)]
+[InjectSpineEvent("attack", "OnAttackEnd", 1.0f)]
+public class MyCharacter : MonoBehaviour
 {
-    private SkeletonAnimation skeletonAnimation;
+    // SpineEventInjector 컴포넌트 추가 필요!
 
-    void Start()
+    void OnAttackStart(SpineEventData data)
     {
-        skeletonAnimation = GetComponent<SkeletonAnimation>();
-        skeletonAnimation.AnimationState.Event += OnSpineEvent;
+        Debug.Log("Attack started!");
     }
 
-    void OnSpineEvent(TrackEntry trackEntry, Event e)
+    void OnHitImpact(SpineEventData data)
     {
-        if (e.Data.Name == "hit_impact")
+        int damage = data.IntParameter; // 50
+        Debug.Log($"Hit! Damage: {damage}");
+        // 파티클 생성, 데미지 적용 등
+    }
+
+    void OnAttackEnd(SpineEventData data)
+    {
+        Debug.Log("Attack finished!");
+    }
+}
+```
+
+### 3. Spine 툴 이벤트 받기 (기존 방식)
+
+Spine Event Editor로 추가한 이벤트를 받으려면:
+
+```csharp
+using SpineTool;
+using UnityEngine;
+
+public class MyCharacter : MonoBehaviour
+{
+    // SpineEventInjector의 processSpineToolEvents = true 설정 필요
+
+    // 이 메서드가 자동으로 호출됩니다
+    void OnSpineEvent(SpineEventData data)
+    {
+        switch (data.EventName)
         {
-            int damage = e.Int; // 50
-            Debug.Log($"Hit with damage: {damage}");
+            case "footstep":
+                PlayFootstepSound();
+                break;
+            case "weapon_swoosh":
+                PlayWeaponSound();
+                break;
         }
+    }
+}
+```
+
+### 4. 콤보 시스템 예제
+
+```csharp
+[InjectSpineEvent("attack1", "OnHit", 0.6f, IntParameter = 10)]
+[InjectSpineEvent("attack2", "OnHit", 0.5f, IntParameter = 15)]
+[InjectSpineEvent("attack3", "OnHit", 0.7f, IntParameter = 30)]
+public class ComboSystem : MonoBehaviour
+{
+    void OnHit(SpineEventData data)
+    {
+        int damage = data.IntParameter;
+        string animName = data.AnimationName; // "attack1", "attack2", etc.
+
+        Debug.Log($"{animName} hit for {damage} damage!");
+        ApplyDamage(damage);
     }
 }
 ```
