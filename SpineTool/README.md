@@ -1,6 +1,71 @@
 # SpineTool
 
-Spine2D 애니메이션 시스템을 위한 독립적인 도구 모듈입니다.
+Unity에서 Spine2D 애니메이션 작업을 위한 강력한 에디터 도구 모음입니다.
+
+## ✨ 주요 기능
+
+### 🎬 1. Animation Preview (에디터 모드 애니메이션 재생)
+
+**플레이 모드 없이** 에디터에서 바로 Spine 애니메이션을 재생하고 확인할 수 있습니다!
+
+#### 특징:
+- ✅ 에디터 모드에서 실시간 애니메이션 재생
+- ✅ 여러 오브젝트 동시 선택 및 제어
+- ✅ 재생/일시정지/정지 컨트롤
+- ✅ Spine 공식 인스펙터와 함께 동작
+
+#### 사용 방법:
+
+**방법 1: Inspector 통합 (추천)**
+1. `SkeletonAnimation` 컴포넌트가 있는 GameObject 선택
+2. Inspector 하단에 "🎬 Animation Preview (Editor Mode)" 섹션 확인
+3. 애니메이션 목록에서 ▶ 버튼 클릭
+4. 씬 뷰에서 실시간 재생 확인!
+
+**방법 2: 별도 윈도우**
+1. 메뉴: `Tools → SpineTool → Animation Preview Window`
+2. `SkeletonAnimation`이 있는 GameObject 선택
+3. 창에서 애니메이션 제어
+
+### 📝 2. Spine Event Editor (이벤트 편집기)
+
+Spine JSON 파일에 이벤트를 **Unity 에디터에서 직접** 추가/수정/삭제할 수 있습니다.
+
+#### 특징:
+- ✅ Spine Editor 없이도 이벤트 관리
+- ✅ 실시간 애니메이션 프리뷰
+- ✅ 비주얼 타임라인 (이벤트 위치 시각화)
+- ✅ 마우스 컨트롤 (우클릭 패닝, 휠 줌)
+- ✅ JSON 파일 직접 수정
+- ✅ 변경사항 추적 및 저장
+
+#### 사용 방법:
+1. 메뉴: `Tools → InteractAnimation → Spine Event Editor`
+2. `SkeletonDataAsset` 선택
+3. 애니메이션 선택
+4. `Add New Event` 버튼으로 이벤트 추가
+5. 이벤트 이름, 시간, 파라미터 설정
+6. `Save to JSON` 클릭
+
+### 🏷️ 3. Spine Symbol Data (메타데이터 관리)
+
+ScriptableObject 기반 애니메이션 메타데이터 관리 시스템
+
+#### 특징:
+- ✅ 애니메이션 설정 중앙 관리
+- ✅ 태그 기반 필터링
+- ✅ 우선순위 시스템
+- ✅ 재사용 가능한 설정
+
+#### 사용 방법:
+```csharp
+// SpineSymbolData 생성
+[CreateAssetMenu(menuName = "SpineTool/Symbol Data")]
+public class MySymbolData : SpineSymbolData
+{
+    // 자동으로 설정 필드 제공
+}
+```
 
 ## 📁 구조
 
@@ -8,98 +73,161 @@ Spine2D 애니메이션 시스템을 위한 독립적인 도구 모듈입니다.
 SpineTool/
 ├── Scripts/
 │   ├── Runtime/
-│   │   ├── SpineAnimationSystem.cs      # Spine 애니메이션 시스템 구현
-│   │   ├── SpineSymbolData.cs           # 심볼 기반 메타데이터 관리
-│   │   └── SpineEventInjector.cs        # 런타임 이벤트 주입
+│   │   └── SpineSymbolData.cs                      # 메타데이터 관리
 │   └── Editor/
-│       └── SpineEventInjectorEditor.cs  # GUI 기반 이벤트 편집기
-└── Examples/
-    ├── ChestInteractable.cs             # Spine 상자 예제
-    ├── ChestWithAutoInjection.cs        # 자동 주입 예제
-    └── SpineGrappleController.cs        # Spine 그래플 시스템 예제
+│       ├── SpineAnimationPreviewWindow.cs          # 애니메이션 프리뷰 윈도우
+│       ├── SpineAnimationInspectorExtension.cs     # 인스펙터 확장
+│       └── SpineEventInjectorEditor.cs             # 이벤트 편집기
+└── README.md
 ```
 
-## ✨ 주요 기능
+## 🚀 설치
 
-### 1. SpineAnimationSystem
-- Spine-Unity 런타임 통합
-- 심볼 ID 기반 애니메이션 관리
-- 스킨 변경, 블렌딩 지원
-- Spine 이벤트 자동 처리
+### 1. Spine-Unity Runtime 설치
+먼저 [Spine-Unity Runtime](http://esotericsoftware.com/spine-unity-download)을 프로젝트에 임포트하세요.
 
-### 2. SpineSymbolData
-- ScriptableObject 기반 메타데이터
-- 태그 기반 필터링
-- 우선순위 시스템
-- 애니메이션 설정 중앙 관리
+### 2. SpineTool 설치
+이 레포지토리를 Unity 프로젝트에 복사하거나 Git submodule로 추가하세요.
 
-### 3. SpineEventInjector
-- Attribute 기반 런타임 이벤트 주입
-- Spine 툴 이벤트 자동 통합
-- Coroutine 기반 정확한 타이밍 제어
-
-### 4. SpineEventInjectorEditor (⭐ 핵심 기능)
-- **실시간 애니메이션 프리뷰**
-- **마우스 컨트롤** (우클릭 패닝, 휠 줌)
-- **Visual Timeline** (이벤트 위치 시각화)
-- **Spine JSON 직접 편집**
-- 저장되지 않은 변경사항 추적
-
-## 🚀 빠른 시작
-
-### SpineEventInjectorEditor 사용하기
-
-```
-1. Unity 메뉴 → Tools → InteractAnimation → Spine Event Editor
-2. SkeletonDataAsset을 Inspector에 드래그
-3. 애니메이션 목록에서 선택
-4. 실시간 프리뷰로 확인
-5. Add New Event로 이벤트 추가
-6. Save to JSON
+```bash
+# Git submodule로 추가
+git submodule add https://github.com/yourusername/UnitySpineTool.git Assets/SpineTool
 ```
 
-### Attribute 기반 자동 주입
+### 3. 스크립팅 심볼 확인
+`Project Settings → Player → Scripting Define Symbols`에 **SPINE_UNITY**가 있는지 확인하세요.
+
+## 📦 의존성
+
+- **Unity 2020.3 이상**
+- **Spine-Unity Runtime** (필수)
+- **Newtonsoft.Json** (이벤트 에디터용, Unity 2020+는 기본 포함)
+
+### 외부 의존성 없음!
+이전 버전과 달리 **InteractAnimation.Core 의존성이 완전히 제거**되었습니다. 순수 Spine 도구로 독립 사용 가능합니다.
+
+## 🎯 사용 예시
+
+### 에디터 모드 애니메이션 테스트
+
+```
+1. Scene에 Spine 캐릭터 배치
+2. SkeletonAnimation 컴포넌트 설정
+3. Inspector에서 애니메이션 목록 확인
+4. ▶ 버튼으로 바로 재생!
+5. 플레이 모드 불필요!
+```
+
+### 이벤트 추가하기
+
+```
+1. Spine Event Editor 열기
+2. SkeletonDataAsset 선택
+3. "attack" 애니메이션 선택
+4. 0.5초 지점에 "hit_impact" 이벤트 추가
+5. Int Parameter: 50 (데미지)
+6. 저장!
+```
+
+### 런타임에서 이벤트 받기
 
 ```csharp
-using InterectAnimationModule.Core;
-using SpineTool;
+using Spine;
+using Spine.Unity;
+using UnityEngine;
 
-[InjectSpineEvent("chest_open", "OnRewardSpawn", 0.6f, IntParameter = 100)]
-public class Chest : InteractableObjectBase
+public class MySpineCharacter : MonoBehaviour
 {
-    protected override void Start()
+    private SkeletonAnimation skeletonAnimation;
+
+    void Start()
     {
-        var spineSystem = gameObject.AddComponent<SpineAnimationSystem>();
-        SetAnimationSystem(spineSystem);
-
-        // SpineEventInjector 추가 (자동 주입)
-        gameObject.AddComponent<SpineEventInjector>();
-
-        base.Start();
+        skeletonAnimation = GetComponent<SkeletonAnimation>();
+        skeletonAnimation.AnimationState.Event += OnSpineEvent;
     }
 
-    private void OnRewardSpawn(AnimationEventData data)
+    void OnSpineEvent(TrackEntry trackEntry, Event e)
     {
-        int score = data.intParameter; // 100
-        Debug.Log($"Reward spawned with score: {score}");
+        if (e.Data.Name == "hit_impact")
+        {
+            int damage = e.Int; // 50
+            Debug.Log($"Hit with damage: {damage}");
+        }
     }
 }
 ```
 
-## 📦 의존성
+## 🔧 트러블슈팅
 
-- **Spine-Unity Runtime** (필수)
-- **InterectAnimationModule Core** (AnimationSystemBase, InteractableObjectBase, AnimationEventData)
+### "SPINE_UNITY 심볼이 정의되지 않았습니다" 오류
+**해결:** `Project Settings → Player → Scripting Define Symbols`에 `SPINE_UNITY` 추가
 
-## 🔧 독립 레포지토리로 분리 준비
+### 애니메이션이 에디터에서 재생되지 않음
+**해결:**
+1. SkeletonDataAsset이 올바르게 설정되었는지 확인
+2. Spine JSON 파일이 올바른지 확인
+3. Inspector를 다시 열어보세요
 
-이 폴더는 독립적인 SpineTool 레포지토리로 분리될 수 있도록 구조화되어 있습니다.
+### Spine 기본 인스펙터가 보이지 않음
+**해결:** `SpineAnimationInspectorExtension.cs`가 Spine의 `SkeletonAnimationInspector`를 상속받으므로 모든 기능이 유지됩니다. 만약 문제가 있다면 해당 파일을 삭제하고 EditorWindow 버전만 사용하세요.
 
-### 분리 시 필요한 작업
-1. `SpineTool/` 폴더를 새로운 Git 레포지토리로 이동
-2. Core 모듈에 대한 의존성 설정 (Unity Package 또는 Git submodule)
-3. Assembly Definition 파일 생성 (선택사항)
+## 🎨 스크린샷
+
+### Animation Preview (Inspector)
+```
+┌─────────────────────────────────────┐
+│ 🎬 Animation Preview (Editor Mode)  │
+├─────────────────────────────────────┤
+│ [🔄 Setup Pose]                     │
+│                                     │
+│ Animations: 10개                    │
+│                                     │
+│ ▶  idle        1.50s  (5 timelines)│
+│ ■  walk        0.80s  (8 timelines)│ ← 재생 중
+│ ▶  run         0.60s  (8 timelines)│
+│ ▶  attack      1.20s  (12 timelines)│
+└─────────────────────────────────────┘
+```
+
+### Spine Event Editor
+```
+┌─────────────────────────────────────┐
+│ Spine Event Editor                  │
+├─────────────────────────────────────┤
+│ Skeleton Data Asset: [Hero.asset]   │
+│                                     │
+│ Animations:                         │
+│ [attack] ← Selected                 │
+│                                     │
+│ [Add New Event] [Save to JSON]      │
+│                                     │
+│ Event 1: hit_impact @ 0.50s        │
+│   ├─ String: ""                     │
+│   ├─ Int: 50                        │
+│   └─ Float: 0                       │
+│                                     │
+│ ┌─────────────────────────────┐    │
+│ │   Animation Preview          │    │
+│ │   [Play] [Pause] [Stop]     │    │
+│ │   Timeline: ●────────        │    │
+│ └─────────────────────────────┘    │
+└─────────────────────────────────────┘
+```
+
+## 🤝 기여
+
+이슈 리포트 및 Pull Request 환영합니다!
 
 ## 📝 라이선스
 
-InterectAnimationModule과 동일한 라이선스 적용
+MIT License
+
+Copyright (c) 2026 lLcrowe
+
+## 📞 문의
+
+이슈 페이지를 통해 문의해주세요.
+
+---
+
+**Made with ❤️ for Spine2D Users**
