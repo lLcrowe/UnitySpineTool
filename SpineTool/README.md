@@ -87,7 +87,65 @@ public class MyCharacter : MonoBehaviour
 public class CombatCharacter : MonoBehaviour { ... }
 ```
 
-### 🏷️ 4. Spine Symbol Data (메타데이터 관리)
+### 🎮 4. Spine Animation Controller (통합 애니메이션 제어) ⭐ 신규!
+
+**런타임에서 애니메이션을 쉽게 재생하고 이벤트를 등록**할 수 있는 통합 컨트롤러!
+
+#### 특징:
+- ✅ 간편한 애니메이션 재생 API (Play, Stop, Pause, Resume)
+- ✅ 이벤트 리스너 등록 (문자열 이벤트 이름 기반)
+- ✅ SpineSymbolData 지원
+- ✅ 속도, 루프, 스킨 제어
+- ✅ 블렌딩 시간 설정
+
+#### 사용 방법:
+
+```csharp
+using SpineTool;
+
+public class MyCharacter : MonoBehaviour
+{
+    private SpineAnimationController controller;
+
+    void Start()
+    {
+        controller = GetComponent<SpineAnimationController>();
+
+        // 이벤트 리스너 등록
+        controller.AddEventListener("hit_impact", OnHit);
+
+        // 애니메이션 재생
+        controller.PlayAnimation("attack", false);
+
+        // 공격 후 idle로 자동 전환
+        controller.AddAnimation("idle", true);
+    }
+
+    void OnHit(SpineEventData data)
+    {
+        int damage = data.IntParameter;
+        Debug.Log($"Hit! {damage} damage");
+    }
+}
+```
+
+**고급 기능:**
+```csharp
+// 속도 조절 (슬로우 모션)
+controller.SetSpeed(0.5f);
+
+// 스킨 변경
+controller.SetSkin("red_costume");
+
+// 블렌딩 시간 설정
+controller.SetMixDuration("walk", "run", 0.2f);
+
+// 일시정지/재개
+controller.PauseAnimation();
+controller.ResumeAnimation();
+```
+
+### 🏷️ 5. Spine Symbol Data (메타데이터 관리)
 
 ScriptableObject 기반 애니메이션 메타데이터 관리 시스템
 
@@ -113,16 +171,18 @@ public class MySymbolData : SpineSymbolData
 SpineTool/
 ├── Scripts/
 │   ├── Runtime/
-│   │   ├── SpineEventInjector.cs                   # 🆕 이벤트 주입 시스템
-│   │   ├── SpineEventInjectionAttribute.cs         # 🆕 Attribute & EventData
+│   │   ├── SpineAnimationController.cs             # ⭐ 통합 애니메이션 컨트롤러
+│   │   ├── SpineEventInjector.cs                   # 이벤트 주입 시스템
+│   │   ├── SpineEventInjectionAttribute.cs         # Attribute & EventData
 │   │   └── SpineSymbolData.cs                      # 메타데이터 관리
 │   └── Editor/
 │       ├── SpineAnimationPreviewWindow.cs          # 애니메이션 프리뷰 윈도우
 │       ├── SpineAnimationInspectorExtension.cs     # 인스펙터 확장
 │       └── SpineEventInjectorEditor.cs             # 이벤트 편집기
 ├── Examples/
-│   ├── SpineCharacterExample.cs                    # 🆕 기본 사용 예제
-│   └── SpineComboSystemExample.cs                  # 🆕 콤보 시스템 예제
+│   ├── SpineControllerExample.cs                   # ⭐ Controller 사용 예제
+│   ├── SpineCharacterExample.cs                    # Injector 기본 예제
+│   └── SpineComboSystemExample.cs                  # Injector 콤보 예제
 └── README.md
 ```
 
@@ -163,7 +223,50 @@ git submodule add https://github.com/yourusername/UnitySpineTool.git Assets/Spin
 5. 플레이 모드 불필요!
 ```
 
-### 2. 이벤트 주입 (Attribute 방식) ⭐ 추천
+### 2. 통합 컨트롤러 사용 (가장 간편!) ⭐⭐ 최고 추천
+
+```csharp
+using SpineTool;
+using UnityEngine;
+
+public class MyCharacter : MonoBehaviour
+{
+    private SpineAnimationController controller;
+
+    void Start()
+    {
+        controller = GetComponent<SpineAnimationController>();
+
+        // 이벤트 리스너 등록 (Spine Editor에서 추가한 이벤트)
+        controller.AddEventListener("footstep", OnFootstep);
+        controller.AddEventListener("hit_impact", OnHitImpact);
+
+        // 애니메이션 재생
+        controller.PlayAnimation("walk", true); // 반복 재생
+    }
+
+    void OnFootstep(SpineEventData data)
+    {
+        Debug.Log("발소리!");
+        // PlaySound(footstepClip);
+    }
+
+    void OnHitImpact(SpineEventData data)
+    {
+        int damage = data.IntParameter;
+        Debug.Log($"타격! 데미지: {damage}");
+    }
+
+    // 공격 버튼
+    void Attack()
+    {
+        controller.PlayAnimation("attack", false); // 한 번만
+        controller.AddAnimation("idle", true);     // 이후 idle
+    }
+}
+```
+
+### 3. 이벤트 주입 (Attribute 방식) ⭐ 추천
 
 ```csharp
 using SpineTool;
@@ -196,7 +299,7 @@ public class MyCharacter : MonoBehaviour
 }
 ```
 
-### 3. Spine 툴 이벤트 받기 (기존 방식)
+### 4. Spine 툴 이벤트 받기 (Injector 사용)
 
 Spine Event Editor로 추가한 이벤트를 받으려면:
 
@@ -224,7 +327,7 @@ public class MyCharacter : MonoBehaviour
 }
 ```
 
-### 4. 콤보 시스템 예제
+### 5. 콤보 시스템 예제 (Injector 사용)
 
 ```csharp
 [InjectSpineEvent("attack1", "OnHit", 0.6f, IntParameter = 10)]
