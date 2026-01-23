@@ -27,7 +27,35 @@ Unity에서 Spine2D 애니메이션 작업을 위한 강력한 에디터 도구 
 2. `SkeletonAnimation`이 있는 GameObject 선택
 3. 창에서 애니메이션 제어
 
-### 📝 2. Spine Event Editor (이벤트 편집기)
+### 🔍 2. Skeleton Inspector (파라미터 뷰어) ⭐ 신규!
+
+**SkeletonAnimation의 모든 정보를 한눈에!** IK, Bone, Slot, Animation 등 모든 파라미터 확인!
+
+#### 특징:
+- ✅ 실시간 파라미터 확인
+- ✅ IK Constraints (이름, Active, Weight, Target)
+- ✅ Transform/Path Constraints
+- ✅ Bones, Slots 정보
+- ✅ Skins, Animations, Events 목록
+- ✅ 검색 필터 지원
+- ✅ 원클릭 스킨/애니메이션 변경
+
+#### 사용 방법:
+1. 메뉴: `Tools → SpineTool → Skeleton Inspector`
+2. SkeletonAnimation 선택
+3. 모든 정보 확인!
+
+**표시 정보:**
+- 🎨 Skins (스킨 목록 + 변경 버튼)
+- 🎬 Animations (애니메이션 목록 + 재생 버튼)
+- 🦴 **IK Constraints** (Active, Weight, Target, Toggle 버튼) ← 핵심!
+- ↔️ Transform Constraints
+- 🛤️ Path Constraints
+- ⚡ Events (이벤트 정의)
+- 💀 Bones (위치, 회전, 스케일)
+- 📌 Slots (Attachment, Color)
+
+### 📝 3. Spine Event Editor (이벤트 편집기)
 
 Spine JSON 파일에 이벤트를 **Unity 에디터에서 직접** 추가/수정/삭제할 수 있습니다.
 
@@ -47,7 +75,7 @@ Spine JSON 파일에 이벤트를 **Unity 에디터에서 직접** 추가/수정
 5. 이벤트 이름, 시간, 파라미터 설정
 6. `Save to JSON` 클릭
 
-### ⚡ 3. Spine Event Injector (런타임 이벤트 주입)
+### ⚡ 4. Spine Event Injector (런타임 이벤트 주입)
 
 **코드만으로** Spine 애니메이션에 이벤트를 주입! Attribute 기반의 강력한 이벤트 시스템입니다.
 
@@ -87,7 +115,7 @@ public class MyCharacter : MonoBehaviour
 public class CombatCharacter : MonoBehaviour { ... }
 ```
 
-### 🎮 4. Spine Anim Module (통합 애니메이션 모듈) ⭐ 신규!
+### 🎮 5. Spine Anim Module (통합 애니메이션 모듈) ⭐ 신규!
 
 **런타임에서 애니메이션을 쉽게 재생하고 이벤트를 등록**할 수 있는 통합 컨트롤러!
 
@@ -151,7 +179,7 @@ controller.PauseAnimation();
 controller.ResumeAnimation();
 ```
 
-### 🔗 5. Spine Anim Sync Module (애니메이션 동기화) ⭐ 신규!
+### 🔗 6. Spine Anim Sync Module (애니메이션 동기화) ⭐ 신규!
 
 **두 캐릭터의 애니메이션을 동기화**하는 모듈! 처형, 그래플, 상호작용에 필수!
 
@@ -192,7 +220,7 @@ public class ExecutionSystem : MonoBehaviour
 - 보물상자 열기 (캐릭터 + 상자)
 - 그래플 기술 (캐릭터 + 적)
 
-### 🦴 6. Spine IK Module (IK 제어) ⭐ 신규!
+### 🦴 7. Spine IK Module (IK 제어) ⭐ 신규!
 
 **IK (Inverse Kinematics) 제어**로 자연스러운 움직임 구현!
 
@@ -233,7 +261,7 @@ public class CharacterIK : MonoBehaviour
 - 발이 지면에 붙도록
 - 시선 추적
 
-### 🏷️ 7. Spine Symbol Data (메타데이터 관리)
+### 🏷️ 8. Spine Symbol Data (메타데이터 관리)
 
 ScriptableObject 기반 애니메이션 메타데이터 관리 시스템
 
@@ -268,6 +296,7 @@ SpineTool/
 │   └── Editor/
 │       ├── SpineAnimationPreviewWindow.cs          # 애니메이션 프리뷰 윈도우
 │       ├── SpineAnimationInspectorExtension.cs     # 인스펙터 확장
+│       ├── SpineSkeletonInspectorWindow.cs         # ⭐ Skeleton 파라미터 뷰어
 │       └── SpineEventInjectorEditor.cs             # 이벤트 편집기
 ├── Examples/
 │   ├── SpineAnimModuleExample.cs                   # AnimModule 사용 예제
