@@ -151,7 +151,89 @@ controller.PauseAnimation();
 controller.ResumeAnimation();
 ```
 
-### 🏷️ 5. Spine Symbol Data (메타데이터 관리)
+### 🔗 5. Spine Anim Sync Module (애니메이션 동기화) ⭐ 신규!
+
+**두 캐릭터의 애니메이션을 동기화**하는 모듈! 처형, 그래플, 상호작용에 필수!
+
+#### 특징:
+- ✅ Master-Slave 애니메이션 동기화
+- ✅ 위치/방향 자동 매칭
+- ✅ Transform 부모-자식 관계 설정
+- ✅ 특정 본(Bone)에 부착 가능
+- ✅ 동기화 완료 콜백
+
+#### 사용 방법:
+```csharp
+using SpineTool;
+
+public class ExecutionSystem : MonoBehaviour
+{
+    // ━━━━━ 샘플 코드 ━━━━━
+    private SpineAnimSyncModule syncModule;
+
+    void PerformExecution()
+    {
+        // 동기화 시작
+        syncModule.StartSync(
+            "execute_attack",  // Master 애니메이션
+            "execute_victim",  // Slave 애니메이션
+            false
+        );
+        // ↓ SpineAnimSyncModule이 처리
+        // ↓ 두 캐릭터 애니메이션 동기화됨
+    }
+
+    // ✅ 결과: 처형 모션 완벽 싱크
+}
+```
+
+**사용 예시:**
+- 처형 모션 (공격자 + 피해자)
+- 보물상자 열기 (캐릭터 + 상자)
+- 그래플 기술 (캐릭터 + 적)
+
+### 🦴 6. Spine IK Module (IK 제어) ⭐ 신규!
+
+**IK (Inverse Kinematics) 제어**로 자연스러운 움직임 구현!
+
+#### 특징:
+- ✅ IK Constraint 온/오프
+- ✅ IK 가중치 (Weight) 조절 (0.0 ~ 1.0)
+- ✅ 부드러운 전환 지원
+- ✅ 여러 IK 동시 제어
+- ✅ 실시간 조작
+
+#### 사용 방법:
+```csharp
+using SpineTool;
+
+public class CharacterIK : MonoBehaviour
+{
+    // ━━━━━ 샘플 코드 ━━━━━
+    private SpineIKModule ikModule;
+
+    void GrabObject()
+    {
+        // IK 활성화
+        ikModule.SetIKActive("hand_IK", true);
+
+        // 가중치 부드럽게 변경
+        ikModule.SetIKWeightSmooth("hand_IK", 1.0f, 0.3f);
+
+        // ↓ SpineIKModule이 처리
+        // ↓ 0.3초 동안 부드럽게 IK 활성화됨
+    }
+
+    // ✅ 결과: 손이 타겟을 향해 자연스럽게 뻗음
+}
+```
+
+**사용 예시:**
+- 손으로 오브젝트 잡기
+- 발이 지면에 붙도록
+- 시선 추적
+
+### 🏷️ 7. Spine Symbol Data (메타데이터 관리)
 
 ScriptableObject 기반 애니메이션 메타데이터 관리 시스템
 
@@ -177,7 +259,9 @@ public class MySymbolData : SpineSymbolData
 SpineTool/
 ├── Scripts/
 │   ├── Runtime/
-│   │   ├── SpineAnimModule.cs                      # ⭐ 통합 애니메이션 모듈
+│   │   ├── SpineAnimModule.cs                      # 통합 애니메이션 모듈
+│   │   ├── SpineAnimSyncModule.cs                  # ⭐ 애니메이션 동기화 모듈
+│   │   ├── SpineIKModule.cs                        # ⭐ IK 제어 모듈
 │   │   ├── SpineEventInjector.cs                   # 이벤트 주입 시스템
 │   │   ├── SpineEventInjectionAttribute.cs         # Attribute & EventData
 │   │   └── SpineSymbolData.cs                      # 메타데이터 관리
@@ -186,7 +270,9 @@ SpineTool/
 │       ├── SpineAnimationInspectorExtension.cs     # 인스펙터 확장
 │       └── SpineEventInjectorEditor.cs             # 이벤트 편집기
 ├── Examples/
-│   ├── SpineAnimModuleExample.cs                   # ⭐ AnimModule 사용 예제
+│   ├── SpineAnimModuleExample.cs                   # AnimModule 사용 예제
+│   ├── SpineAnimSyncExample.cs                     # ⭐ Sync 사용 예제
+│   ├── SpineIKExample.cs                           # ⭐ IK 사용 예제
 │   ├── SpineCharacterExample.cs                    # Injector 기본 예제
 │   └── SpineComboSystemExample.cs                  # Injector 콤보 예제
 └── README.md
