@@ -10,7 +10,7 @@ using Spine.Unity;
 namespace SpineTool
 {
     /// <summary>
-    /// Spine 애니메이션을 쉽게 제어하고 이벤트를 등록할 수 있는 통합 컨트롤러
+    /// Spine 애니메이션을 쉽게 제어하고 이벤트를 등록할 수 있는 통합 모듈
     ///
     /// 주요 기능:
     /// - 애니메이션 재생/정지/일시정지
@@ -19,11 +19,11 @@ namespace SpineTool
     /// - 속도, 루프, 스킨 제어
     ///
     /// 사용 예:
-    /// controller.PlayAnimation("attack", false);
-    /// controller.AddEventListener("hit_impact", OnHitImpact);
+    /// animModule.PlayAnimation("attack", false);
+    /// animModule.AddEventListener("hit_impact", OnHitImpact);
     /// </summary>
     [RequireComponent(typeof(SkeletonAnimation))]
-    public class SpineAnimationController : MonoBehaviour
+    public class SpineAnimModule : MonoBehaviour
     {
 #if SPINE_UNITY
         [Header("References")]
@@ -475,18 +475,18 @@ namespace SpineTool
         {
             if (enableDebugLog)
             {
-                Debug.Log($"[SpineAnimationController] {message}");
+                Debug.Log($"[SpineAnimModule] {message}");
             }
         }
 
         private void LogWarning(string message)
         {
-            Debug.LogWarning($"[SpineAnimationController] {message}");
+            Debug.LogWarning($"[SpineAnimModule] {message}");
         }
 
         private void LogError(string message)
         {
-            Debug.LogError($"[SpineAnimationController] {message}");
+            Debug.LogError($"[SpineAnimModule] {message}");
         }
 
         #endregion
@@ -494,7 +494,7 @@ namespace SpineTool
 #else
         private void Awake()
         {
-            Debug.LogWarning("[SpineAnimationController] Spine-Unity is not installed. This component will be disabled.");
+            Debug.LogWarning("[SpineAnimModule] Spine-Unity is not installed. This component will be disabled.");
             enabled = false;
         }
 #endif

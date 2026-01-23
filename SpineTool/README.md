@@ -87,7 +87,7 @@ public class MyCharacter : MonoBehaviour
 public class CombatCharacter : MonoBehaviour { ... }
 ```
 
-### 🎮 4. Spine Animation Controller (통합 애니메이션 제어) ⭐ 신규!
+### 🎮 4. Spine Anim Module (통합 애니메이션 모듈) ⭐ 신규!
 
 **런타임에서 애니메이션을 쉽게 재생하고 이벤트를 등록**할 수 있는 통합 컨트롤러!
 
@@ -98,33 +98,39 @@ public class CombatCharacter : MonoBehaviour { ... }
 - ✅ 속도, 루프, 스킨 제어
 - ✅ 블렌딩 시간 설정
 
-#### 사용 방법:
+#### 사용 방법 (설정 → 모듈 → 기능 구조):
 
 ```csharp
 using SpineTool;
 
 public class MyCharacter : MonoBehaviour
 {
-    private SpineAnimationController controller;
+    // ━━━━━ 1단계: 샘플 코드 (설정) ━━━━━
+    private SpineAnimModule animModule;
 
     void Start()
     {
-        controller = GetComponent<SpineAnimationController>();
+        animModule = GetComponent<SpineAnimModule>();
 
         // 이벤트 리스너 등록
-        controller.AddEventListener("hit_impact", OnHit);
+        animModule.AddEventListener("hit_impact", OnHit);
+        // ↓ SpineAnimModule이 처리
 
         // 애니메이션 재생
-        controller.PlayAnimation("attack", false);
-
-        // 공격 후 idle로 자동 전환
-        controller.AddAnimation("idle", true);
+        animModule.PlayAnimation("attack", false);
+        // ↓ SpineAnimModule이 처리
+        // ↓ Attack 애니메이션 재생됨
     }
 
+    // ━━━━━ 3단계: 기능 작동 (콜백) ━━━━━
     void OnHit(SpineEventData data)
     {
+        // ✅ 결과: hit_impact 이벤트 수신
         int damage = data.IntParameter;
         Debug.Log($"Hit! {damage} damage");
+
+        // 실제 기능 구현
+        ApplyDamage(damage);
     }
 }
 ```
@@ -171,7 +177,7 @@ public class MySymbolData : SpineSymbolData
 SpineTool/
 ├── Scripts/
 │   ├── Runtime/
-│   │   ├── SpineAnimationController.cs             # ⭐ 통합 애니메이션 컨트롤러
+│   │   ├── SpineAnimModule.cs                      # ⭐ 통합 애니메이션 모듈
 │   │   ├── SpineEventInjector.cs                   # 이벤트 주입 시스템
 │   │   ├── SpineEventInjectionAttribute.cs         # Attribute & EventData
 │   │   └── SpineSymbolData.cs                      # 메타데이터 관리
@@ -180,7 +186,7 @@ SpineTool/
 │       ├── SpineAnimationInspectorExtension.cs     # 인스펙터 확장
 │       └── SpineEventInjectorEditor.cs             # 이벤트 편집기
 ├── Examples/
-│   ├── SpineControllerExample.cs                   # ⭐ Controller 사용 예제
+│   ├── SpineAnimModuleExample.cs                   # ⭐ AnimModule 사용 예제
 │   ├── SpineCharacterExample.cs                    # Injector 기본 예제
 │   └── SpineComboSystemExample.cs                  # Injector 콤보 예제
 └── README.md
@@ -223,7 +229,9 @@ git submodule add https://github.com/yourusername/UnitySpineTool.git Assets/Spin
 5. 플레이 모드 불필요!
 ```
 
-### 2. 통합 컨트롤러 사용 (가장 간편!) ⭐⭐ 최고 추천
+### 2. 통합 모듈 사용 (가장 간편!) ⭐⭐ 최고 추천
+
+**구조: 샘플 코드(설정) → SpineAnimModule → 기능 작동**
 
 ```csharp
 using SpineTool;
@@ -231,28 +239,36 @@ using UnityEngine;
 
 public class MyCharacter : MonoBehaviour
 {
-    private SpineAnimationController controller;
+    // ━━━━━ 1단계: 샘플 코드 (설정) ━━━━━
+    private SpineAnimModule animModule;
 
     void Start()
     {
-        controller = GetComponent<SpineAnimationController>();
+        animModule = GetComponent<SpineAnimModule>();
 
         // 이벤트 리스너 등록 (Spine Editor에서 추가한 이벤트)
-        controller.AddEventListener("footstep", OnFootstep);
-        controller.AddEventListener("hit_impact", OnHitImpact);
+        animModule.AddEventListener("footstep", OnFootstep);
+        animModule.AddEventListener("hit_impact", OnHitImpact);
+        // ↓ SpineAnimModule이 처리
 
         // 애니메이션 재생
-        controller.PlayAnimation("walk", true); // 반복 재생
+        animModule.PlayAnimation("walk", true); // 반복 재생
+        // ↓ SpineAnimModule이 처리
+        // ↓ Walk 애니메이션 재생됨
     }
+
+    // ━━━━━ 3단계: 기능 작동 (콜백) ━━━━━
 
     void OnFootstep(SpineEventData data)
     {
+        // ✅ 결과: 발소리 이벤트 수신
         Debug.Log("발소리!");
-        // PlaySound(footstepClip);
+        PlaySound(footstepClip);
     }
 
     void OnHitImpact(SpineEventData data)
     {
+        // ✅ 결과: 타격 이벤트 수신
         int damage = data.IntParameter;
         Debug.Log($"타격! 데미지: {damage}");
     }
@@ -260,8 +276,11 @@ public class MyCharacter : MonoBehaviour
     // 공격 버튼
     void Attack()
     {
-        controller.PlayAnimation("attack", false); // 한 번만
-        controller.AddAnimation("idle", true);     // 이후 idle
+        // ━━━━━ 샘플 코드 ━━━━━
+        animModule.PlayAnimation("attack", false); // 한 번만
+        animModule.AddAnimation("idle", true);     // 이후 idle
+        // ↓ SpineAnimModule이 처리
+        // ↓ Attack → Idle 순차 재생됨
     }
 }
 ```
