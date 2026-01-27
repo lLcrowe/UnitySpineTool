@@ -465,7 +465,206 @@ git submodule add https://github.com/yourusername/UnitySpineTool.git Assets/Spin
 5. 플레이 모드 불필요!
 ```
 
-### 2. 통합 모듈 사용 (가장 간편!) ⭐⭐ 최고 추천
+### 2. Enum 생성 및 사용 (타입 안전!) ⭐⭐ 강력 추천
+
+#### 🔧 셋업 (한번만)
+
+**Step 1: SkeletonDataAsset 준비**
+```
+Project 창에서 Spine 캐릭터들의 SkeletonDataAsset 확인
+예: Assets/Spine/Player.asset
+    Assets/Spine/Enemy.asset
+    Assets/Spine/Boss.asset
+```
+
+**Step 2: Enum Generator 열기**
+```
+메뉴: Tools → SpineTool → Animation Enum Generator
+```
+
+**Step 3: Skeleton 추가**
+```
+1. [+ Add Skeleton Data] 버튼 클릭
+2. Project 창에서 SkeletonDataAsset 드래그 앤 드롭
+3. 여러 개 추가 가능 (Player, Enemy, Boss 등)
+```
+
+**Step 4: 생성 모드 선택**
+```
+Individual      : 각각 따로 (권장) → PlayerAnimations.cs, EnemyAnimations.cs
+Combined        : 하나로 통합 → AllCharacterAnimations.cs
+Smart Combined  : 공통/개별 분리 (최적) → CommonAnimations.cs + 각 전용
+```
+
+**Step 5: 설정**
+```
+Namespace: Game.Animations (선택)
+경로: Assets/Scripts/Animations (자동 생성됨)
+```
+
+**Step 6: 생성**
+```
+[Enum 코드 생성] 버튼 클릭!
+→ .cs 파일 자동 생성됨
+```
+
+---
+
+#### 💻 사용법 (생성 후)
+
+**🔹 Individual 모드 사용 예시:**
+```csharp
+using SpineTool;
+
+public class Player : MonoBehaviour
+{
+    private SpineAnimModule animModule;
+
+    void Start()
+    {
+        animModule = GetComponent<SpineAnimModule>();
+
+        // ✅ Enum 사용 (자동완성, 오타 방지)
+        animModule.PlayAnimation(PlayerAnimations.Idle, loop: true);
+        animModule.PlayAnimation(PlayerAnimations.Run, loop: true);
+        animModule.PlayAnimation(PlayerAnimations.Jump, loop: false);
+    }
+}
+
+public class Enemy : MonoBehaviour
+{
+    private SpineAnimModule animModule;
+
+    void Start()
+    {
+        animModule = GetComponent<SpineAnimModule>();
+
+        // ✅ Enemy 전용 Enum
+        animModule.PlayAnimation(EnemyAnimations.Idle, loop: true);
+        animModule.PlayAnimation(EnemyAnimations.Attack, loop: false);
+    }
+}
+```
+
+**🔹 Combined 모드 사용 예시:**
+```csharp
+using SpineTool;
+
+public class CharacterController : MonoBehaviour
+{
+    private SpineAnimModule animModule;
+    public bool isPlayer;
+
+    void Start()
+    {
+        animModule = GetComponent<SpineAnimModule>();
+
+        if (isPlayer)
+        {
+            // 모든 캐릭터가 같은 Enum 사용 (Prefix로 구분)
+            animModule.PlayAnimation(AllCharacterAnimations.Player_Idle);
+            animModule.PlayAnimation(AllCharacterAnimations.Player_Shoot);
+        }
+        else
+        {
+            animModule.PlayAnimation(AllCharacterAnimations.Enemy_Idle);
+            animModule.PlayAnimation(AllCharacterAnimations.Enemy_Attack);
+        }
+    }
+}
+```
+
+**🔹 Smart Combined 모드 사용 예시 (최고!):**
+```csharp
+using SpineTool;
+
+public class Player : MonoBehaviour
+{
+    private SpineAnimModule animModule;
+
+    void Update()
+    {
+        float input = Input.GetAxis("Horizontal");
+
+        if (input != 0)
+        {
+            // 공통 애니메이션 (모든 캐릭터가 가짐)
+            animModule.PlayAnimation(CommonAnimations.Run, loop: true);
+        }
+        else
+        {
+            animModule.PlayAnimation(CommonAnimations.Idle, loop: true);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            // Player 전용 애니메이션
+            animModule.PlayAnimation(PlayerAnimations.Shoot, loop: false);
+            animModule.AddAnimation(CommonAnimations.Idle, loop: true);
+        }
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            // Player 전용
+            animModule.PlayAnimation(PlayerAnimations.DoubleJump, loop: false);
+        }
+    }
+}
+
+public class Enemy : MonoBehaviour
+{
+    private SpineAnimModule animModule;
+
+    void AI()
+    {
+        // 공통 애니메이션 사용 (Player와 동일)
+        animModule.PlayAnimation(CommonAnimations.Idle, loop: true);
+        animModule.PlayAnimation(CommonAnimations.Attack, loop: false);
+
+        // Enemy 전용 애니메이션
+        animModule.PlayAnimation(EnemyAnimations.Patrol, loop: true);
+        animModule.PlayAnimation(EnemyAnimations.Rage, loop: false);
+    }
+}
+```
+
+---
+
+#### 🎯 모드 선택 가이드
+
+| 프로젝트 상황 | 권장 모드 | 이유 |
+|--------------|-----------|------|
+| 캐릭터마다 애니메이션이 완전히 다름 | **Individual** | 명확한 분리, 타입 안전 |
+| 모든 애니메이션 한 곳에서 관리 | **Combined** | 통합 관리 용이 |
+| 공통 애니메이션 많음 (idle, run 등) | **Smart Combined** ⭐ | 중복 제거, 최적 |
+| 메탈슬러그/액션 게임 | **Smart Combined** ⭐ | 공통 동작 재사용 |
+| 프로토타입/빠른 개발 | **Individual** | 가장 심플 |
+
+---
+
+#### ✨ Enum 사용의 장점
+
+```csharp
+// ❌ 문자열 방식 (위험)
+animModule.PlayAnimation("idel", loop: true);  // 오타! 런타임 에러!
+animModule.PlayAnimation("runn", loop: true);  // 오타! 런타임 에러!
+
+// ✅ Enum 방식 (안전)
+animModule.PlayAnimation(PlayerAnimations.Idle, loop: true);  // 컴파일 체크!
+animModule.PlayAnimation(PlayerAnimations.Run, loop: true);   // 자동완성!
+// animModule.PlayAnimation(PlayerAnimations.Idel);  // 컴파일 에러! 즉시 발견!
+```
+
+**결과:**
+- 🔍 오타 즉시 발견 (컴파일 타임)
+- 💡 IDE 자동완성 지원
+- 🔄 리팩토링 안전 (Rename 일괄 변경)
+- 📝 코드 가독성 향상
+- 🛡️ 타입 안전성 보장
+
+---
+
+### 3. 통합 모듈 사용 (가장 간편!) ⭐⭐ 최고 추천
 
 **구조: 샘플 코드(설정) → SpineAnimModule → 기능 작동**
 
@@ -521,7 +720,7 @@ public class MyCharacter : MonoBehaviour
 }
 ```
 
-### 3. 이벤트 주입 (Attribute 방식) ⭐ 추천
+### 4. 이벤트 주입 (Attribute 방식) ⭐ 추천
 
 ```csharp
 using SpineTool;
@@ -554,7 +753,7 @@ public class MyCharacter : MonoBehaviour
 }
 ```
 
-### 4. Spine 툴 이벤트 받기 (Injector 사용)
+### 5. Spine 툴 이벤트 받기 (Injector 사용)
 
 Spine Event Editor로 추가한 이벤트를 받으려면:
 
@@ -582,7 +781,7 @@ public class MyCharacter : MonoBehaviour
 }
 ```
 
-### 5. 콤보 시스템 예제 (Injector 사용)
+### 6. 콤보 시스템 예제 (Injector 사용)
 
 ```csharp
 [InjectSpineEvent("attack1", "OnHit", 0.6f, IntParameter = 10)]
