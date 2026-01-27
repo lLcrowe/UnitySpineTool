@@ -55,7 +55,92 @@ Unity에서 Spine2D 애니메이션 작업을 위한 강력한 에디터 도구 
 - 💀 Bones (위치, 회전, 스케일)
 - 📌 Slots (Attachment, Color)
 
-### 📝 3. Spine Event Editor (이벤트 편집기)
+### 🔢 3. Animation Enum Generator (애니메이션 Enum 생성기) ⭐ 신규!
+
+**문자열 대신 Enum으로 타입 안전하게 애니메이션 제어!** SkeletonAnimation에서 자동으로 Enum 코드 생성!
+
+#### 특징:
+- ✅ 자동 Enum 코드 생성 (SkeletonAnimation → Enum)
+- ✅ 타입 안전성 (컴파일 타임 체크)
+- ✅ IDE 자동완성 지원
+- ✅ 오타 방지 (컴파일 에러로 감지)
+- ✅ 리팩토링 용이
+- ✅ Namespace, 경로 커스터마이징
+
+#### 사용 방법:
+1. 메뉴: `Tools → SpineTool → Animation Enum Generator`
+2. SkeletonAnimation 선택
+3. Enum 이름, Namespace 설정
+4. "Enum 코드 생성" 클릭
+5. 생성된 Enum 사용!
+
+**생성 예시:**
+```csharp
+// 자동 생성된 코드 (PlayerAnimations.cs)
+namespace Game.Animations
+{
+    /// <summary>
+    /// Hero 애니메이션 목록
+    /// 자동 생성됨 - SpineAnimationEnumGenerator
+    /// </summary>
+    public enum PlayerAnimations
+    {
+        /// <summary>idle</summary>
+        Idle,
+
+        /// <summary>run</summary>
+        Run,
+
+        /// <summary>jump</summary>
+        Jump,
+
+        /// <summary>attack_01</summary>
+        Attack_01,
+
+        /// <summary>attack_02</summary>
+        Attack_02
+    }
+}
+```
+
+**사용 예시:**
+```csharp
+using SpineTool;
+
+public class Player : MonoBehaviour
+{
+    private SpineAnimModule animModule;
+
+    void Start()
+    {
+        animModule = GetComponent<SpineAnimModule>();
+
+        // ✅ Enum 사용 (타입 안전, 자동완성)
+        animModule.PlayAnimation(PlayerAnimations.Idle, loop: true);
+
+        // ❌ 문자열 사용 (오타 위험)
+        // animModule.PlayAnimation("idel", loop: true); // 버그!
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            // IDE에서 자동완성으로 선택 가능!
+            animModule.PlayAnimation(PlayerAnimations.Jump, loop: false);
+            animModule.AddAnimation(PlayerAnimations.Idle, loop: true);
+        }
+    }
+}
+```
+
+**장점:**
+- **자동완성**: `PlayerAnimations.` 입력 시 모든 애니메이션 목록 표시
+- **컴파일 체크**: 잘못된 애니메이션 이름 사용 시 컴파일 에러
+- **리팩토링**: Enum 값 변경 시 IDE의 Rename 기능으로 일괄 변경
+- **타입 안전**: 다른 캐릭터의 애니메이션 Enum 사용 시 컴파일 에러
+
+### 📝 4. Spine Event Editor (이벤트 편집기)
 
 Spine JSON 파일에 이벤트를 **Unity 에디터에서 직접** 추가/수정/삭제할 수 있습니다.
 
@@ -75,7 +160,7 @@ Spine JSON 파일에 이벤트를 **Unity 에디터에서 직접** 추가/수정
 5. 이벤트 이름, 시간, 파라미터 설정
 6. `Save to JSON` 클릭
 
-### ⚡ 4. Spine Event Injector (런타임 이벤트 주입)
+### ⚡ 5. Spine Event Injector (런타임 이벤트 주입)
 
 **코드만으로** Spine 애니메이션에 이벤트를 주입! Attribute 기반의 강력한 이벤트 시스템입니다.
 
@@ -115,7 +200,7 @@ public class MyCharacter : MonoBehaviour
 public class CombatCharacter : MonoBehaviour { ... }
 ```
 
-### 🎮 5. Spine Anim Module (통합 애니메이션 모듈) ⭐ 신규!
+### 🎮 6. Spine Anim Module (통합 애니메이션 모듈) ⭐ 신규!
 
 **런타임에서 애니메이션을 쉽게 재생하고 이벤트를 등록**할 수 있는 통합 컨트롤러!
 
@@ -179,7 +264,7 @@ controller.PauseAnimation();
 controller.ResumeAnimation();
 ```
 
-### 🔗 6. Spine Anim Sync Module (애니메이션 동기화) ⭐ 신규!
+### 🔗 7. Spine Anim Sync Module (애니메이션 동기화) ⭐ 신규!
 
 **두 캐릭터의 애니메이션을 동기화**하는 모듈! 처형, 그래플, 상호작용에 필수!
 
@@ -220,7 +305,7 @@ public class ExecutionSystem : MonoBehaviour
 - 보물상자 열기 (캐릭터 + 상자)
 - 그래플 기술 (캐릭터 + 적)
 
-### 🦴 7. Spine IK Module (IK 제어) ⭐ 신규!
+### 🦴 8. Spine IK Module (IK 제어) ⭐ 신규!
 
 **IK (Inverse Kinematics) 제어**로 자연스러운 움직임 구현!
 
@@ -261,7 +346,7 @@ public class CharacterIK : MonoBehaviour
 - 발이 지면에 붙도록
 - 시선 추적
 
-### 🏷️ 8. Spine Symbol Data (메타데이터 관리)
+### 🏷️ 9. Spine Symbol Data (메타데이터 관리)
 
 ScriptableObject 기반 애니메이션 메타데이터 관리 시스템
 
@@ -288,6 +373,7 @@ SpineTool/
 ├── Scripts/
 │   ├── Runtime/
 │   │   ├── SpineAnimModule.cs                      # 통합 애니메이션 모듈
+│   │   ├── SpineAnimModuleEnumExtensions.cs        # ⭐ Enum 확장 메서드
 │   │   ├── SpineAnimSyncModule.cs                  # ⭐ 애니메이션 동기화 모듈
 │   │   ├── SpineIKModule.cs                        # ⭐ IK 제어 모듈
 │   │   ├── SpineEventInjector.cs                   # 이벤트 주입 시스템
@@ -296,10 +382,12 @@ SpineTool/
 │   └── Editor/
 │       ├── SpineAnimationPreviewWindow.cs          # 애니메이션 프리뷰 윈도우
 │       ├── SpineAnimationInspectorExtension.cs     # 인스펙터 확장
+│       ├── SpineAnimationEnumGenerator.cs          # ⭐ Enum 코드 자동 생성기
 │       ├── SpineSkeletonInspectorWindow.cs         # ⭐ Skeleton 파라미터 뷰어
 │       └── SpineEventInjectorEditor.cs             # 이벤트 편집기
 ├── Examples/
 │   ├── SpineAnimModuleExample.cs                   # AnimModule 사용 예제
+│   ├── SpineEnumAnimationExample.cs                # ⭐ Enum 사용 예제
 │   ├── SpineAnimSyncExample.cs                     # ⭐ Sync 사용 예제
 │   ├── SpineIKExample.cs                           # ⭐ IK 사용 예제
 │   ├── SpineCharacterExample.cs                    # Injector 기본 예제
