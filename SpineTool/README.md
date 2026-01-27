@@ -57,22 +57,55 @@ Unity에서 Spine2D 애니메이션 작업을 위한 강력한 에디터 도구 
 
 ### 🔢 3. Animation Enum Generator (애니메이션 Enum 생성기) ⭐ 신규!
 
-**문자열 대신 Enum으로 타입 안전하게 애니메이션 제어!** SkeletonAnimation에서 자동으로 Enum 코드 생성!
+**문자열 대신 Enum으로 타입 안전하게 애니메이션 제어!** SkeletonDataAsset에서 자동으로 Enum 코드 생성!
 
 #### 특징:
-- ✅ 자동 Enum 코드 생성 (SkeletonAnimation → Enum)
+- ✅ 자동 Enum 코드 생성 (SkeletonDataAsset → Enum)
+- ✅ **3가지 생성 모드** 지원 (Individual, Combined, Smart Combined)
+- ✅ 여러 Skeleton 동시 선택 가능
 - ✅ 타입 안전성 (컴파일 타임 체크)
 - ✅ IDE 자동완성 지원
 - ✅ 오타 방지 (컴파일 에러로 감지)
 - ✅ 리팩토링 용이
 - ✅ Namespace, 경로 커스터마이징
 
+#### 3가지 생성 모드:
+
+**1️⃣ Individual (각각 생성)** - 기본, 권장
+```
+Player.asset → PlayerAnimations.cs
+Enemy.asset  → EnemyAnimations.cs
+Boss.asset   → BossAnimations.cs
+```
+- 장점: 명확한 분리, 타입 안전
+- 단점: 공통 애니메이션 중복
+
+**2️⃣ Combined (통합 생성)**
+```
+3개 합쳐서 → AllCharacterAnimations.cs
+  - Player_Idle, Player_Run
+  - Enemy_Idle, Enemy_Walk
+  - Boss_Idle, Boss_Ultimate
+```
+- 장점: 한 파일로 관리
+- 단점: Enum 값 많아짐, 타입 안전성 낮음
+
+**3️⃣ Smart Combined (똑똑한 통합)** ⭐
+```
+공통 감지 → CommonAnimations.cs (Idle, Attack, Death)
+Player 전용 → PlayerAnimations.cs (Shoot, Dash)
+Enemy 전용 → EnemyAnimations.cs (Patrol, Rage)
+```
+- 장점: 중복 없음, 재사용성 최고
+- 단점: 파일이 여러 개
+
 #### 사용 방법:
 1. 메뉴: `Tools → SpineTool → Animation Enum Generator`
-2. SkeletonAnimation 선택
-3. Enum 이름, Namespace 설정
-4. "Enum 코드 생성" 클릭
-5. 생성된 Enum 사용!
+2. **SkeletonDataAsset 추가** (여러 개 가능)
+3. **Generation Mode 선택** (Individual / Combined / Smart Combined)
+4. Enum 이름, Namespace 설정
+5. "Enum 코드 생성" 클릭
+6. 생성된 Enum 사용!
 
 **생성 예시:**
 ```csharp
