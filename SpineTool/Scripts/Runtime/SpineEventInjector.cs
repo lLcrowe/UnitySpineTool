@@ -1,29 +1,51 @@
 using UnityEngine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using InteractAnimation.Core;
 
 #if SPINE_UNITY
 using Spine;
 using Spine.Unity;
 #endif
 
-namespace InteractAnimation.AnimationSystems.Spine
+namespace SpineTool
 {
     /// <summary>
     /// Spine 애니메이션에 이벤트를 동적으로 주입하는 시스템
-    /// InjectSpineEvent Attribute를 스캔하여 런타임에 Spine 이벤트를 등록합니다.
+    ///
+    /// 사용 방법:
+    /// 1. SkeletonAnimation이 있는 GameObject에 이 컴포넌트 추가
+    /// 2. 같은 GameObject의 MonoBehaviour에 [InjectSpineEvent] Attribute 사용
+    /// 3. 런타임에 자동으로 이벤트가 주입됨
+    ///
+    /// 예시:
+    /// [InjectSpineEvent("attack", "OnHitImpact", 0.5f, IntParameter = 50)]
+    /// public class MyCharacter : MonoBehaviour
+    /// {
+    ///     void OnHitImpact(SpineEventData data)
+    ///     {
+    ///         Debug.Log($"Hit with power: {data.IntParameter}");
+    ///     }
+    /// }
     /// </summary>
     public class SpineEventInjector : MonoBehaviour
     {
 #if SPINE_UNITY
+        [Header("Settings")]
+        [Tooltip("디버그 로그 활성화")]
+        public bool enableDebugLog = true;
+
+        [Tooltip("Spine 툴에서 설정한 이벤트도 처리")]
+        public bool processSpineToolEvents = true;
+
         private SkeletonAnimation skeletonAnimation;
-        private Dictionary<string, List<EventInjectionInfo>> injectionInfoMap = new Dictionary<string, List<EventInjectionInfo>>();
+        private Dictionary<string, List<InjectionInfo>> injectionMap = new Dictionary<string, List<InjectionInfo>>();
+        private Dictionary<int, Coroutine> activeCoroutines = new Dictionary<int, Coroutine>();
         private bool isInitialized = false;
 
-        private class EventInjectionInfo
+        private class InjectionInfo
         {
             public string AnimationName;
             public string FunctionName;
@@ -40,11 +62,43 @@ namespace InteractAnimation.AnimationSystems.Spine
             skeletonAnimation = GetComponent<SkeletonAnimation>();
             if (skeletonAnimation == null)
             {
-                Debug.LogError($"[SpineEventInjector] SkeletonAnimation not found on {gameObject.name}!");
+                LogError($"SkeletonAnimation not found on {gameObject.name}!");
+                enabled = false;
                 return;
             }
 
             InitializeInjection();
+        }
+
+        private void OnEnable()
+        {
+            if (skeletonAnimation != null && skeletonAnimation.AnimationState != null)
+            {
+                skeletonAnimation.AnimationState.Start += OnAnimationStart;
+                skeletonAnimation.AnimationState.End += OnAnimationEnd;
+
+                if (processSpineToolEvents)
+                {
+                    skeletonAnimation.AnimationState.Event += OnSpineToolEvent;
+                }
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (skeletonAnimation != null && skeletonAnimation.AnimationState != null)
+            {
+                skeletonAnimation.AnimationState.Start -= OnAnimationStart;
+                skeletonAnimation.AnimationState.End -= OnAnimationEnd;
+
+                if (processSpineToolEvents)
+                {
+                    skeletonAnimation.AnimationState.Event -= OnSpineToolEvent;
+                }
+            }
+
+            // 모든 코루틴 중지
+            StopAllInjectionCoroutines();
         }
 
         /// <summary>
@@ -54,32 +108,27 @@ namespace InteractAnimation.AnimationSystems.Spine
         {
             if (isInitialized) return;
 
-            injectionInfoMap.Clear();
+            injectionMap.Clear();
 
-            // InteractableObjectBase를 상속한 컴포넌트 찾기
-            var interactableComponents = GetComponents<InteractableObjectBase>();
+            // 같은 GameObject의 모든 MonoBehaviour 스캔
+            MonoBehaviour[] components = GetComponents<MonoBehaviour>();
 
-            foreach (var component in interactableComponents)
+            foreach (var component in components)
             {
-                ScanAttributes(component);
-            }
+                if (component == null || component == this) continue;
 
-            // TrackEntry 이벤트 등록
-            if (skeletonAnimation != null && skeletonAnimation.AnimationState != null)
-            {
-                skeletonAnimation.AnimationState.Start += OnAnimationStart;
-                skeletonAnimation.AnimationState.Event += OnSpineEvent;
+                ScanAttributesFromComponent(component);
             }
 
             isInitialized = true;
 
-            Debug.Log($"[SpineEventInjector] Initialized with {injectionInfoMap.Count} animation event mappings");
+            Log($"Initialized with {injectionMap.Count} animation(s), total {CountTotalInjections()} event(s)");
         }
 
         /// <summary>
-        /// Attribute 스캔
+        /// 컴포넌트에서 Attribute 스캔
         /// </summary>
-        private void ScanAttributes(object target)
+        private void ScanAttributesFromComponent(object target)
         {
             Type targetType = target.GetType();
 
@@ -96,11 +145,25 @@ namespace InteractAnimation.AnimationSystems.Spine
 
                 if (method == null)
                 {
-                    Debug.LogWarning($"[SpineEventInjector] Method '{attr.FunctionName}' not found in {targetType.Name}");
+                    LogWarning($"Method '{attr.FunctionName}' not found in {targetType.Name}");
                     continue;
                 }
 
-                var info = new EventInjectionInfo
+                // 파라미터 검증
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length > 1)
+                {
+                    LogWarning($"Method '{attr.FunctionName}' should have 0 or 1 parameter (SpineEventData)");
+                    continue;
+                }
+
+                if (parameters.Length == 1 && parameters[0].ParameterType != typeof(SpineEventData))
+                {
+                    LogWarning($"Method '{attr.FunctionName}' parameter should be SpineEventData, not {parameters[0].ParameterType.Name}");
+                    continue;
+                }
+
+                var info = new InjectionInfo
                 {
                     AnimationName = attr.AnimationName,
                     FunctionName = attr.FunctionName,
@@ -112,14 +175,14 @@ namespace InteractAnimation.AnimationSystems.Spine
                     Target = target
                 };
 
-                if (!injectionInfoMap.ContainsKey(attr.AnimationName))
+                if (!injectionMap.ContainsKey(attr.AnimationName))
                 {
-                    injectionInfoMap[attr.AnimationName] = new List<EventInjectionInfo>();
+                    injectionMap[attr.AnimationName] = new List<InjectionInfo>();
                 }
 
-                injectionInfoMap[attr.AnimationName].Add(info);
+                injectionMap[attr.AnimationName].Add(info);
 
-                Debug.Log($"[SpineEventInjector] Registered event '{attr.FunctionName}' for animation '{attr.AnimationName}' at {attr.NormalizedTime:F2}");
+                Log($"Registered: '{attr.FunctionName}' for '{attr.AnimationName}' @{attr.NormalizedTime:F2}");
             }
         }
 
@@ -132,107 +195,208 @@ namespace InteractAnimation.AnimationSystems.Spine
 
             string animationName = trackEntry.Animation.Name;
 
-            if (injectionInfoMap.ContainsKey(animationName))
+            if (injectionMap.ContainsKey(animationName))
             {
-                // 해당 애니메이션의 이벤트들을 시간 기반으로 실행하도록 Coroutine 시작
-                StartCoroutine(TriggerEventsAtTime(trackEntry, injectionInfoMap[animationName]));
+                // 기존 코루틴이 있으면 중지
+                int trackIndex = trackEntry.TrackIndex;
+                if (activeCoroutines.ContainsKey(trackIndex))
+                {
+                    StopCoroutine(activeCoroutines[trackIndex]);
+                    activeCoroutines.Remove(trackIndex);
+                }
+
+                // 새로운 코루틴 시작
+                Coroutine coroutine = StartCoroutine(ProcessInjectionEvents(trackEntry, injectionMap[animationName]));
+                activeCoroutines[trackIndex] = coroutine;
+
+                Log($"Started injection for '{animationName}' ({injectionMap[animationName].Count} events)");
+            }
+        }
+
+        /// <summary>
+        /// 애니메이션 종료 시 호출
+        /// </summary>
+        private void OnAnimationEnd(TrackEntry trackEntry)
+        {
+            if (trackEntry == null) return;
+
+            int trackIndex = trackEntry.TrackIndex;
+            if (activeCoroutines.ContainsKey(trackIndex))
+            {
+                StopCoroutine(activeCoroutines[trackIndex]);
+                activeCoroutines.Remove(trackIndex);
             }
         }
 
         /// <summary>
         /// 특정 시간에 이벤트 트리거
         /// </summary>
-        private System.Collections.IEnumerator TriggerEventsAtTime(TrackEntry trackEntry, List<EventInjectionInfo> events)
+        private IEnumerator ProcessInjectionEvents(TrackEntry trackEntry, List<InjectionInfo> events)
         {
             // 시간순 정렬
             var sortedEvents = events.OrderBy(e => e.NormalizedTime).ToList();
+            float animationDuration = trackEntry.Animation.Duration;
 
             foreach (var info in sortedEvents)
             {
-                // 이벤트가 발생할 시간까지 대기
-                float targetTime = trackEntry.Animation.Duration * info.NormalizedTime;
+                // 이벤트가 발생할 시간 계산
+                float targetTime = animationDuration * info.NormalizedTime;
 
-                while (trackEntry.TrackTime < targetTime && trackEntry.TrackTime >= 0)
+                // 목표 시간까지 대기
+                while (trackEntry.TrackTime < targetTime)
                 {
+                    // TrackEntry가 유효한지 확인
+                    if (trackEntry.Animation == null || trackEntry.TrackTime < 0)
+                    {
+                        yield break;
+                    }
+
                     yield return null;
                 }
 
-                // TrackEntry가 여전히 유효한지 확인
-                if (trackEntry.TrackTime < 0) yield break;
+                // 이벤트 실행
+                InvokeInjectedEvent(info, trackEntry);
+            }
 
-                // 이벤트 호출
-                try
+            // 코루틴 완료 후 제거
+            int trackIndex = trackEntry.TrackIndex;
+            if (activeCoroutines.ContainsKey(trackIndex))
+            {
+                activeCoroutines.Remove(trackIndex);
+            }
+        }
+
+        /// <summary>
+        /// 주입된 이벤트 호출
+        /// </summary>
+        private void InvokeInjectedEvent(InjectionInfo info, TrackEntry trackEntry)
+        {
+            try
+            {
+                ParameterInfo[] parameters = info.Method.GetParameters();
+
+                if (parameters.Length == 0)
                 {
-                    // 파라미터가 있는 경우
-                    ParameterInfo[] parameters = info.Method.GetParameters();
-
-                    if (parameters.Length == 0)
-                    {
-                        // 파라미터 없음
-                        info.Method.Invoke(info.Target, null);
-                    }
-                    else if (parameters.Length == 1)
-                    {
-                        // AnimationEventData 파라미터
-                        var eventData = new AnimationEventData(info.FunctionName, info.NormalizedTime)
-                        {
-                            stringParameter = info.StringParameter,
-                            intParameter = info.IntParameter,
-                            floatParameter = info.FloatParameter
-                        };
-
-                        info.Method.Invoke(info.Target, new object[] { eventData });
-                    }
-
-                    Debug.Log($"[SpineEventInjector] Triggered '{info.FunctionName}' at {trackEntry.TrackTime:F2}");
+                    // 파라미터 없음
+                    info.Method.Invoke(info.Target, null);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Debug.LogError($"[SpineEventInjector] Failed to invoke '{info.FunctionName}': {ex.Message}");
+                    // SpineEventData 파라미터
+                    var eventData = new SpineEventData(
+                        info.FunctionName,
+                        trackEntry.Animation.Name,
+                        info.NormalizedTime,
+                        trackEntry.TrackTime
+                    )
+                    {
+                        StringParameter = info.StringParameter,
+                        IntParameter = info.IntParameter,
+                        FloatParameter = info.FloatParameter
+                    };
+
+                    info.Method.Invoke(info.Target, new object[] { eventData });
+                }
+
+                Log($"Triggered: '{info.FunctionName}' @{trackEntry.TrackTime:F2}s");
+            }
+            catch (Exception ex)
+            {
+                LogError($"Failed to invoke '{info.FunctionName}': {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// Spine 툴에서 설정한 이벤트 처리
+        /// </summary>
+        private void OnSpineToolEvent(TrackEntry trackEntry, Event e)
+        {
+            if (e == null || e.Data == null) return;
+
+            Log($"Spine Tool Event: {e.Data.Name} (Int: {e.Int}, Float: {e.Float}, String: '{e.String}')");
+
+            // SpineEventData로 변환
+            var eventData = new SpineEventData(
+                e.Data.Name,
+                trackEntry.Animation.Name,
+                trackEntry.TrackTime / trackEntry.Animation.Duration,
+                trackEntry.TrackTime
+            )
+            {
+                StringParameter = e.String ?? "",
+                IntParameter = e.Int,
+                FloatParameter = e.Float
+            };
+
+            // 같은 GameObject의 모든 컴포넌트에 브로드캐스트
+            BroadcastEventToComponents(eventData);
+        }
+
+        /// <summary>
+        /// 모든 컴포넌트에 이벤트 브로드캐스트
+        /// </summary>
+        private void BroadcastEventToComponents(SpineEventData eventData)
+        {
+            MonoBehaviour[] components = GetComponents<MonoBehaviour>();
+
+            foreach (var component in components)
+            {
+                if (component == null || component == this) continue;
+
+                // OnSpineEvent 메서드 찾기
+                MethodInfo method = component.GetType().GetMethod(
+                    "OnSpineEvent",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+                );
+
+                if (method != null)
+                {
+                    try
+                    {
+                        method.Invoke(component, new object[] { eventData });
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError($"Failed to broadcast event to {component.GetType().Name}: {ex.Message}");
+                    }
                 }
             }
         }
 
         /// <summary>
-        /// Spine 자체 이벤트 처리 (Spine 애니메이션 툴에서 설정한 이벤트)
+        /// 모든 주입 코루틴 중지
         /// </summary>
-        private void OnSpineEvent(TrackEntry trackEntry, global::Spine.Event e)
+        private void StopAllInjectionCoroutines()
         {
-            if (e == null) return;
-
-            Debug.Log($"[SpineEventInjector] Spine Event: {e.Data.Name} (Int: {e.Int}, Float: {e.Float}, String: {e.String})");
-
-            // Spine 이벤트를 AnimationEventData로 변환하여 전달
-            var eventData = new AnimationEventData(e.Data.Name, trackEntry.TrackTime / trackEntry.Animation.Duration)
+            foreach (var coroutine in activeCoroutines.Values)
             {
-                stringParameter = e.String,
-                intParameter = e.Int,
-                floatParameter = e.Float
-            };
-
-            // 등록된 모든 InteractableObjectBase에 이벤트 전달
-            var interactableComponents = GetComponents<InteractableObjectBase>();
-            foreach (var component in interactableComponents)
-            {
-                component.OnAnimationEvent(eventData);
+                if (coroutine != null)
+                {
+                    StopCoroutine(coroutine);
+                }
             }
-        }
-
-        private void OnDestroy()
-        {
-            if (skeletonAnimation != null && skeletonAnimation.AnimationState != null)
-            {
-                skeletonAnimation.AnimationState.Start -= OnAnimationStart;
-                skeletonAnimation.AnimationState.Event -= OnSpineEvent;
-            }
+            activeCoroutines.Clear();
         }
 
         /// <summary>
         /// 특정 오브젝트의 이벤트 수동 등록
         /// </summary>
-        public void RegisterEvents(object target)
+        public void RegisterComponent(MonoBehaviour component)
         {
-            ScanAttributes(target);
+            if (component == null) return;
+
+            ScanAttributesFromComponent(component);
+            Log($"Manually registered component: {component.GetType().Name}");
+        }
+
+        /// <summary>
+        /// 재초기화 (런타임에 컴포넌트 추가된 경우)
+        /// </summary>
+        [ContextMenu("Re-Initialize")]
+        public void ReInitialize()
+        {
+            isInitialized = false;
+            InitializeInjection();
         }
 
         /// <summary>
@@ -241,17 +405,50 @@ namespace InteractAnimation.AnimationSystems.Spine
         [ContextMenu("Debug: Print Registered Events")]
         public void PrintRegisteredEvents()
         {
-            Debug.Log($"[SpineEventInjector] Registered Events:");
+            Debug.Log($"===== SpineEventInjector: Registered Events =====");
 
-            foreach (var kvp in injectionInfoMap)
+            if (injectionMap.Count == 0)
             {
-                Debug.Log($"  Animation: {kvp.Key}");
-                foreach (var info in kvp.Value)
+                Debug.Log("  No events registered.");
+                return;
+            }
+
+            foreach (var kvp in injectionMap)
+            {
+                Debug.Log($"  Animation: '{kvp.Key}' ({kvp.Value.Count} events)");
+                foreach (var info in kvp.Value.OrderBy(i => i.NormalizedTime))
                 {
-                    Debug.Log($"    - {info.FunctionName} at {info.NormalizedTime:F2}");
+                    Debug.Log($"    - {info.NormalizedTime:F2}: {info.FunctionName}()" +
+                        $" [Int:{info.IntParameter}, Float:{info.FloatParameter:F2}, String:'{info.StringParameter}']");
                 }
             }
+
+            Debug.Log($"================================================");
         }
+
+        private int CountTotalInjections()
+        {
+            return injectionMap.Values.Sum(list => list.Count);
+        }
+
+        private void Log(string message)
+        {
+            if (enableDebugLog)
+            {
+                Debug.Log($"[SpineEventInjector] {message}");
+            }
+        }
+
+        private void LogWarning(string message)
+        {
+            Debug.LogWarning($"[SpineEventInjector] {message}");
+        }
+
+        private void LogError(string message)
+        {
+            Debug.LogError($"[SpineEventInjector] {message}");
+        }
+
 #else
         private void Awake()
         {
