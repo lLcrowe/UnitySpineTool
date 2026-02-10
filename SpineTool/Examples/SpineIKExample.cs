@@ -4,9 +4,9 @@ using SpineTool;
 namespace SpineTool.Examples
 {
     /// <summary>
-    /// SpineIKModule 사용 예제
+    /// SpineIKControl 사용 예제
     ///
-    /// 구조: 샘플 코드(설정) → SpineIKModule → 기능 작동
+    /// 구조: 샘플 코드(설정) → SpineIKControl → 기능 작동
     ///
     /// 사용 예시:
     /// - 손으로 오브젝트 잡기
@@ -20,7 +20,7 @@ namespace SpineTool.Examples
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
         [Header("IK Module")]
-        [SerializeField] private SpineIKModule ikModule; // ← 모듈
+        [SerializeField] private SpineIKControl ikModule; // ← 모듈
 
         [Header("IK Names")]
         [SerializeField] private string handIKName = "hand_IK";
@@ -35,7 +35,7 @@ namespace SpineTool.Examples
             // 모듈 가져오기
             if (ikModule == null)
             {
-                ikModule = GetComponent<SpineIKModule>();
+                ikModule = GetComponent<SpineIKControl>();
             }
         }
 
@@ -50,7 +50,7 @@ namespace SpineTool.Examples
                 ikModule.SetIKActive(handIKName, true);
                 ikModule.SetIKWeight(handIKName, 1.0f);
 
-                // ↓ SpineIKModule이 처리
+                // ↓ SpineIKControl이 처리
                 // ↓ 손 IK가 활성화되고 가중치가 1.0으로 설정됨
             }
         }
@@ -110,7 +110,7 @@ namespace SpineTool.Examples
             bool isActive = ikModule.IsIKActive(handIKName);
             ikModule.SetIKActive(handIKName, !isActive);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 손 IK가 켜지거나 꺼짐
 
             // ✅ 결과
@@ -126,7 +126,7 @@ namespace SpineTool.Examples
             bool isActive = ikModule.IsIKActive(footIKName);
             ikModule.SetIKActive(footIKName, !isActive);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 발 IK가 켜지거나 꺼짐
 
             // ✅ 결과
@@ -141,7 +141,7 @@ namespace SpineTool.Examples
             // ━━━━━ 샘플 코드 ━━━━━
             ikModule.SetAllIKActive(true);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 모든 IK가 활성화됨
 
             // ✅ 결과
@@ -156,7 +156,7 @@ namespace SpineTool.Examples
             // ━━━━━ 샘플 코드 ━━━━━
             ikModule.SetAllIKActive(false);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 모든 IK가 비활성화됨
 
             // ✅ 결과
@@ -173,7 +173,7 @@ namespace SpineTool.Examples
             float newWeight = Mathf.Clamp01(currentWeight + Time.deltaTime);
             ikModule.SetIKWeight(handIKName, newWeight);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 손 IK 가중치가 증가됨
         }
 
@@ -187,7 +187,7 @@ namespace SpineTool.Examples
             float newWeight = Mathf.Clamp01(currentWeight - Time.deltaTime);
             ikModule.SetIKWeight(handIKName, newWeight);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 손 IK 가중치가 감소됨
         }
 
@@ -199,7 +199,7 @@ namespace SpineTool.Examples
             // ━━━━━ 샘플 코드 ━━━━━
             ikModule.SetIKWeightSmooth(handIKName, 1.0f, 0.5f);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 0.5초 동안 부드럽게 가중치가 1.0으로 변경됨
 
             Debug.Log("IK 부드럽게 활성화 시작...");
@@ -213,7 +213,7 @@ namespace SpineTool.Examples
             // ━━━━━ 샘플 코드 ━━━━━
             ikModule.SetIKWeightSmooth(handIKName, 0.0f, 0.5f);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 0.5초 동안 부드럽게 가중치가 0.0으로 변경됨
 
             Debug.Log("IK 부드럽게 비활성화 시작...");
@@ -233,7 +233,7 @@ namespace SpineTool.Examples
             ikModule.SetIKActive(handIKName, true);
             ikModule.SetIKWeightSmooth(handIKName, 1.0f, 0.3f);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 손 IK가 켜지고 0.3초 동안 부드럽게 활성화됨
 
             // ✅ 결과: 손이 타겟을 향해 뻗어감
@@ -248,7 +248,7 @@ namespace SpineTool.Examples
             // ━━━━━ 샘플 코드 ━━━━━
             ikModule.SetIKWeightSmooth(handIKName, 0.0f, 0.3f);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 0.3초 동안 부드럽게 IK가 꺼짐
 
             // ✅ 결과: 손이 원래 자세로 돌아감
@@ -264,7 +264,7 @@ namespace SpineTool.Examples
             ikModule.SetIKActive(footIKName, true);
             ikModule.SetIKWeight(footIKName, 1.0f);
 
-            // ↓ SpineIKModule이 처리
+            // ↓ SpineIKControl이 처리
             // ↓ 발 IK가 활성화되어 지면에 붙음
 
             // ✅ 결과: 발이 지면에 정확히 착지
@@ -280,7 +280,7 @@ namespace SpineTool.Examples
         {
             GUILayout.BeginArea(new Rect(10, 10, 500, 600));
 
-            GUILayout.Box("SpineIKModule 사용 예제");
+            GUILayout.Box("SpineIKControl 사용 예제");
             GUILayout.Label("구조: 샘플코드(설정) → 모듈 → 기능작동");
 
             GUILayout.Space(10);
@@ -293,7 +293,7 @@ namespace SpineTool.Examples
             if (GUILayout.Button("Toggle Hand IK", GUILayout.Width(150)))
             {
                 ToggleHandIK();
-                Debug.Log("→ SpineIKModule이 처리 → 손 IK 토글됨");
+                Debug.Log("→ SpineIKControl이 처리 → 손 IK 토글됨");
             }
             GUILayout.EndHorizontal();
 
@@ -302,7 +302,7 @@ namespace SpineTool.Examples
             if (GUILayout.Button("Toggle Foot IK", GUILayout.Width(150)))
             {
                 ToggleFootIK();
-                Debug.Log("→ SpineIKModule이 처리 → 발 IK 토글됨");
+                Debug.Log("→ SpineIKControl이 처리 → 발 IK 토글됨");
             }
             GUILayout.EndHorizontal();
 
@@ -315,7 +315,7 @@ namespace SpineTool.Examples
             if (GUILayout.Button("Enable All IK", GUILayout.Width(150)))
             {
                 EnableAllIK();
-                Debug.Log("→ SpineIKModule이 처리 → 모든 IK 활성화");
+                Debug.Log("→ SpineIKControl이 처리 → 모든 IK 활성화");
             }
             GUILayout.EndHorizontal();
 
@@ -324,7 +324,7 @@ namespace SpineTool.Examples
             if (GUILayout.Button("Disable All IK", GUILayout.Width(150)))
             {
                 DisableAllIK();
-                Debug.Log("→ SpineIKModule이 처리 → 모든 IK 비활성화");
+                Debug.Log("→ SpineIKControl이 처리 → 모든 IK 비활성화");
             }
             GUILayout.EndHorizontal();
 
@@ -337,7 +337,7 @@ namespace SpineTool.Examples
             if (GUILayout.Button("Smooth Enable", GUILayout.Width(150)))
             {
                 SmoothlyEnableIK();
-                Debug.Log("→ SpineIKModule이 처리 → 부드럽게 활성화");
+                Debug.Log("→ SpineIKControl이 처리 → 부드럽게 활성화");
             }
             GUILayout.EndHorizontal();
 
@@ -346,7 +346,7 @@ namespace SpineTool.Examples
             if (GUILayout.Button("Smooth Disable", GUILayout.Width(150)))
             {
                 SmoothlyDisableIK();
-                Debug.Log("→ SpineIKModule이 처리 → 부드럽게 비활성화");
+                Debug.Log("→ SpineIKControl이 처리 → 부드럽게 비활성화");
             }
             GUILayout.EndHorizontal();
 

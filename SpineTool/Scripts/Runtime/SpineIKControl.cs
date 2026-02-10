@@ -22,7 +22,7 @@ namespace SpineTool
     /// - 발이 지면에 붙도록
     /// - 시선 추적
     /// </summary>
-    public class SpineIKModule : MonoBehaviour
+    public class SpineIKControl : MonoBehaviour
     {
 #if SPINE_UNITY
         [Header("References")]
@@ -402,18 +402,18 @@ namespace SpineTool
         {
             if (enableDebugLog)
             {
-                Debug.Log($"[SpineIKModule] {message}");
+                Debug.Log($"[SpineIKControl] {message}");
             }
         }
 
         private void LogWarning(string message)
         {
-            Debug.LogWarning($"[SpineIKModule] {message}");
+            Debug.LogWarning($"[SpineIKControl] {message}");
         }
 
         private void LogError(string message)
         {
-            Debug.LogError($"[SpineIKModule] {message}");
+            Debug.LogError($"[SpineIKControl] {message}");
         }
 
         #endregion
@@ -421,7 +421,7 @@ namespace SpineTool
 #else
         private void Awake()
         {
-            Debug.LogWarning("[SpineIKModule] Spine-Unity is not installed. This component will be disabled.");
+            Debug.LogWarning("[SpineIKControl] Spine-Unity is not installed. This component will be disabled.");
             enabled = false;
         }
 #endif
