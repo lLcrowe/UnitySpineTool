@@ -207,6 +207,28 @@ namespace SpineVAT
         }
 
         /// <summary>
+        /// 유닛 재생 속도 변경
+        /// </summary>
+        public void SetUnitSpeed(int index, float speed)
+        {
+            if (index < 0 || index >= units.Count) return;
+            var u = units[index];
+            u.speed = speed;
+            units[index] = u;
+        }
+
+        /// <summary>
+        /// 유닛 루프 여부 변경
+        /// </summary>
+        public void SetUnitLoop(int index, bool loop)
+        {
+            if (index < 0 || index >= units.Count) return;
+            var u = units[index];
+            u.loop = loop;
+            units[index] = u;
+        }
+
+        /// <summary>
         /// 활성 유닛 수
         /// </summary>
         public int ActiveUnitCount
