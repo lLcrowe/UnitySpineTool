@@ -356,7 +356,7 @@ using SpineTool;
 public class CharacterIK : MonoBehaviour
 {
     // ━━━━━ 샘플 코드 ━━━━━
-    private SpineIKModule ikModule;
+    private SpineIKControl ikModule;
 
     void GrabObject()
     {
@@ -366,7 +366,7 @@ public class CharacterIK : MonoBehaviour
         // 가중치 부드럽게 변경
         ikModule.SetIKWeightSmooth("hand_IK", 1.0f, 0.3f);
 
-        // ↓ SpineIKModule이 처리
+        // ↓ SpineIKControl이 처리
         // ↓ 0.3초 동안 부드럽게 IK 활성화됨
     }
 
@@ -408,7 +408,7 @@ SpineTool/
 │   │   ├── SpineAnimModule.cs                      # 통합 애니메이션 모듈
 │   │   ├── SpineAnimModuleEnumExtensions.cs        # ⭐ Enum 확장 메서드
 │   │   ├── SpineAnimSyncModule.cs                  # ⭐ 애니메이션 동기화 모듈
-│   │   ├── SpineIKModule.cs                        # ⭐ IK 제어 모듈
+│   │   ├── SpineIKControl.cs                        # ⭐ IK 제어 모듈
 │   │   ├── SpineEventInjector.cs                   # 이벤트 주입 시스템
 │   │   ├── SpineEventInjectionAttribute.cs         # Attribute & EventData
 │   │   └── SpineSymbolData.cs                      # 메타데이터 관리
