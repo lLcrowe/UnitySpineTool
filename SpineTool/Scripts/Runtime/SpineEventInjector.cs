@@ -309,7 +309,7 @@ namespace SpineTool
         /// <summary>
         /// Spine 툴에서 설정한 이벤트 처리
         /// </summary>
-        private void OnSpineToolEvent(TrackEntry trackEntry, Event e)
+        private void OnSpineToolEvent(TrackEntry trackEntry, Spine.Event e)
         {
             if (e == null || e.Data == null) return;
 

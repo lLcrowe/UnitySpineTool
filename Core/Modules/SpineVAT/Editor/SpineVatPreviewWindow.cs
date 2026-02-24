@@ -167,7 +167,7 @@ namespace SpineVAT.Editor
             if (state.clipIndex < 0 || state.clipIndex >= vatData.clips.Count) return;
 
             // 머티리얼 찾기: 씬의 SpineVatRenderer에서 가져오기
-            var renderer = FindAnyObjectByType<SpineVatRenderer>();
+            var renderer = FindObjectOfType<SpineVatRenderer>();
             if (renderer == null) return;
 
             var matField = typeof(SpineVatRenderer).GetField("vatMaterial",

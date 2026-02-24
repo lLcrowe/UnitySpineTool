@@ -324,7 +324,7 @@ namespace SpineTool.Editor
                     // 토글 버튼
                     if (GUILayout.Button("Toggle", GUILayout.Width(60)))
                     {
-                        ik.Active = !ik.Active;
+                        ik.Mix = ik.Mix > 0f ? 0f : 1f;
                     }
 
                     EditorGUILayout.EndHorizontal();
@@ -516,7 +516,7 @@ namespace SpineTool.Editor
 
                 EditorGUILayout.LabelField($"Bone: {slot.Bone.Data.Name}");
                 EditorGUILayout.LabelField($"Attachment: {slot.Attachment?.Name ?? "None"}");
-                EditorGUILayout.LabelField($"Color: {slot.Color}");
+                EditorGUILayout.LabelField($"Color: ({slot.R:F2}, {slot.G:F2}, {slot.B:F2}, {slot.A:F2})");
 
                 EditorGUI.indentLevel--;
                 EditorGUILayout.EndVertical();

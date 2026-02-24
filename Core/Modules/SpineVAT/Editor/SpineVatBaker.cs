@@ -236,7 +236,7 @@ namespace SpineVAT.Editor
 
             // MeshGenerator로 메쉬 추출
             var meshGenerator = new MeshGenerator();
-            meshGenerator.Settings = new MeshGenerator.Settings
+            meshGenerator.settings = new MeshGenerator.Settings
             {
                 useClipping = false,
                 zSpacing = 0f,
@@ -353,12 +353,11 @@ namespace SpineVAT.Editor
                     meshGenerator.BuildMesh(instructionBuilder, false);
 
                     var bufferPositions = meshGenerator.Buffers.vertexBuffer;
-                    int count = Mathf.Min(bufferPositions.Count, vertexCount);
-                    var posItems = bufferPositions.Items;
+                    int count = Mathf.Min(bufferPositions.Length, vertexCount);
 
                     for (int v = 0; v < count; v++)
                     {
-                        reusableVertices[v] = posItems[v];
+                        reusableVertices[v] = bufferPositions[v];
                     }
 
                     int row = info.frameOffset + f;

@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using InteractAnimation.AnimationSystems.Spine;
+
 
 #if SPINE_UNITY
 using Spine;
@@ -50,7 +52,7 @@ namespace SpineTool
         // 프로퍼티
         public SkeletonAnimation SkeletonAnimation => skeletonAnimation;
         public Skeleton Skeleton => skeletonAnimation?.Skeleton;
-        public AnimationState AnimationState => skeletonAnimation?.AnimationState;
+        public Spine.AnimationState AnimationState => skeletonAnimation?.AnimationState;
         public string CurrentAnimationName => currentAnimationName;
         public bool IsPlaying => currentTrackEntry != null && currentTrackEntry.TimeScale > 0;
 
@@ -73,7 +75,7 @@ namespace SpineTool
             // Spine 이벤트 리스너 등록
             if (skeletonAnimation.AnimationState != null)
             {
-                skeletonAnimation.AnimationState.Event += OnSpineEvent;
+                skeletonAnimation.AnimationState.Event += OnSpineEvent;                
                 skeletonAnimation.AnimationState.Complete += OnAnimationComplete;
                 skeletonAnimation.AnimationState.Start += OnAnimationStart;
             }
@@ -337,7 +339,7 @@ namespace SpineTool
         /// <summary>
         /// Spine 이벤트 발생 시 호출
         /// </summary>
-        private void OnSpineEvent(TrackEntry trackEntry, Event e)
+        private void OnSpineEvent(TrackEntry trackEntry, Spine.Event e)
         {
             if (e == null || e.Data == null) return;
 
@@ -414,7 +416,7 @@ namespace SpineTool
             if (skeletonAnimation == null || skeletonAnimation.Skeleton == null) return 0f;
 
             SkeletonData skeletonData = skeletonAnimation.Skeleton.Data;
-            Animation animation = skeletonData.FindAnimation(animationName);
+            Spine.Animation animation = skeletonData.FindAnimation(animationName);
 
             return animation != null ? animation.Duration : 0f;
         }

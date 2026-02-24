@@ -126,7 +126,7 @@ namespace SpineTool
             }
 
             IkConstraint ik = ikConstraints[ikName];
-            ik.Active = active;
+            ik.Mix = active ? 1f : 0f;
 
             Log($"IK '{ikName}' {(active ? "enabled" : "disabled")}");
         }
@@ -242,7 +242,7 @@ namespace SpineTool
         {
             foreach (var kvp in ikConstraints)
             {
-                kvp.Value.Active = active;
+                kvp.Value.Mix = active ? 1f : 0f;
             }
 
             Log($"All IK {(active ? "enabled" : "disabled")}");
@@ -283,7 +283,7 @@ namespace SpineTool
         public bool IsIKActive(string ikName)
         {
             if (!ikConstraints.ContainsKey(ikName)) return false;
-            return ikConstraints[ikName].Active;
+            return ikConstraints[ikName].Mix > 0f;
         }
 
         /// <summary>
@@ -378,7 +378,7 @@ namespace SpineTool
 
             foreach (var ik in ikConstraints)
             {
-                Debug.Log($"  - {ik.Data.Name} (Active: {ik.Active}, Weight: {ik.Mix:F2})");
+                Debug.Log($"  - {ik.Data.Name} (Active: {ik.Mix > 0f}, Weight: {ik.Mix:F2})");
             }
         }
 
@@ -388,7 +388,7 @@ namespace SpineTool
             bool anyActive = false;
             foreach (var ik in ikConstraints.Values)
             {
-                if (ik.Active)
+                if (ik.Mix > 0f)
                 {
                     anyActive = true;
                     break;
