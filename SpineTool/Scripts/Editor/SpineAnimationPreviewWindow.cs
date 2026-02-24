@@ -20,7 +20,7 @@ namespace SpineTool.Editor
     /// </summary>
     public class SpineAnimationPreviewWindow : EditorWindow
     {
-        [MenuItem("Tools/SpineTool/Animation Preview Window")]
+        [MenuItem("Tools/lLcrowe/SpineTool/Animation Preview Window")]
         public static void ShowWindow()
         {
             var window = GetWindow<SpineAnimationPreviewWindow>("Spine Animation Preview");

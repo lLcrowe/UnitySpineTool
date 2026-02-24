@@ -36,7 +36,7 @@ namespace SpineTool.Editor
         private bool includeNamespace = true;
         private bool addPrefix = true;
 
-        [MenuItem("Tools/SpineTool/Animation Enum Generator")]
+        [MenuItem("Tools/lLcrowe/SpineTool/Animation Enum Generator")]
         public static void ShowWindow()
         {
             var window = GetWindow<SpineAnimationEnumGenerator>("Anim Enum Generator");

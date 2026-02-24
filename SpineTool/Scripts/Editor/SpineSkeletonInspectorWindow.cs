@@ -25,7 +25,7 @@ namespace SpineTool.Editor
     /// </summary>
     public class SpineSkeletonInspectorWindow : EditorWindow
     {
-        [MenuItem("Tools/SpineTool/Skeleton Inspector")]
+        [MenuItem("Tools/lLcrowe/SpineTool/Skeleton Inspector")]
         public static void ShowWindow()
         {
             var window = GetWindow<SpineSkeletonInspectorWindow>("Skeleton Inspector");

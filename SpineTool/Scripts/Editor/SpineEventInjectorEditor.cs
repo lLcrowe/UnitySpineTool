@@ -67,7 +67,7 @@ namespace InteractAnimation.Editor
             public bool isExpanded = true;
         }
 
-        [MenuItem("Tools/InteractAnimation/Spine Event Editor")]
+        [MenuItem("Tools/lLcrowe/SpineTool/Spine Event Editor")]
         public static void ShowWindow()
         {
             var window = GetWindow<SpineEventInjectorEditor>("Spine Event Editor");

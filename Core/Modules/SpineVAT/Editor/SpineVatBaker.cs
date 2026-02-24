@@ -31,7 +31,7 @@ namespace SpineVAT.Editor
 
         private Vector2 scrollPos;
 
-        [MenuItem("Tools/SpineVAT/VAT Baker")]
+        [MenuItem("Tools/lLcrowe/SpineTool/SpineVAT/VAT Baker")]
         public static void ShowWindow()
         {
             var window = GetWindow<SpineVatBaker>("Spine VAT Baker");
@@ -448,7 +448,7 @@ namespace SpineVAT.Editor
         }
 
 #else
-        [MenuItem("Tools/SpineVAT/VAT Baker")]
+        [MenuItem("Tools/lLcrowe/SpineTool/SpineVAT/VAT Baker")]
         public static void ShowWindow()
         {
             var window = GetWindow<SpineVatBaker>("Spine VAT Baker");

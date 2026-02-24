@@ -16,7 +16,7 @@ namespace SpineVAT.Editor
     /// </summary>
     public class SpineVatPreviewWindow : EditorWindow
     {
-        [MenuItem("Tools/SpineVAT/VAT Animation Preview")]
+        [MenuItem("Tools/lLcrowe/SpineTool/SpineVAT/VAT Animation Preview")]
         public static void ShowWindow()
         {
             var window = GetWindow<SpineVatPreviewWindow>("VAT Animation Preview");
