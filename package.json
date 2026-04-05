@@ -1,0 +1,11 @@
+{
+    "name": "com.llcrowe.unity-spine-tool",
+    "version": "1.0.0",
+    "displayName": "Unity Spine Tool",
+    "description": "Spine animation utilities, VAT baking, IK control, event injection, editor tools",
+    "unity": "6000.3",
+    "author": {
+        "name": "lLcrowe"
+    },
+    "dependencies": {}
+}

@@ -1,0 +1,28 @@
+{
+    "name": "UnitySpineTool.Editor",
+    "rootNamespace": "",
+    "references": [
+        "UnitySpineTool",
+        "spine-unity",
+        "spine-unity-editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "SPINE_UNITY"
+    ],
+    "versionDefines": [
+        {
+            "name": "spine-unity",
+            "expression": "",
+            "define": "SPINE_UNITY"
+        }
+    ],
+    "noEngineReferences": false
+}

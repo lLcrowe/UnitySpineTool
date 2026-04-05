@@ -1,0 +1,24 @@
+{
+    "name": "UnitySpineTool.VAT",
+    "rootNamespace": "",
+    "references": [
+        "spine-unity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "SPINE_UNITY"
+    ],
+    "versionDefines": [
+        {
+            "name": "spine-unity",
+            "expression": "",
+            "define": "SPINE_UNITY"
+        }
+    ],
+    "noEngineReferences": false
+}
