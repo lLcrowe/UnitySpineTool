@@ -84,7 +84,7 @@ namespace SpineTool
             {
                 if (string.IsNullOrEmpty(ikName)) continue;
 
-                IkConstraint ikConstraint = skeletonAnimation.Skeleton.FindIkConstraint(ikName);
+                IkConstraint ikConstraint = skeletonAnimation.Skeleton.FindConstraint<IkConstraint>(ikName);
                 if (ikConstraint != null)
                 {
                     ikConstraints[ikName] = ikConstraint;
@@ -126,7 +126,7 @@ namespace SpineTool
             }
 
             IkConstraint ik = ikConstraints[ikName];
-            ik.Mix = active ? 1f : 0f;
+            ik.Pose.Mix = active ? 1f : 0f;
 
             Log($"IK '{ikName}' {(active ? "enabled" : "disabled")}");
         }
@@ -143,7 +143,7 @@ namespace SpineTool
             }
 
             IkConstraint ik = ikConstraints[ikName];
-            ik.Mix = Mathf.Clamp01(weight);
+            ik.Pose.Mix = Mathf.Clamp01(weight);
 
             Log($"IK '{ikName}' weight set to {weight:F2}");
         }
@@ -165,18 +165,18 @@ namespace SpineTool
         private System.Collections.IEnumerator SmoothIKWeight(string ikName, float targetWeight, float duration)
         {
             IkConstraint ik = ikConstraints[ikName];
-            float startWeight = ik.Mix;
+            float startWeight = ik.Pose.Mix;
             float elapsed = 0f;
 
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
                 float t = elapsed / duration;
-                ik.Mix = Mathf.Lerp(startWeight, targetWeight, t);
+                ik.Pose.Mix = Mathf.Lerp(startWeight, targetWeight, t);
                 yield return null;
             }
 
-            ik.Mix = targetWeight;
+            ik.Pose.Mix = targetWeight;
             Log($"IK '{ikName}' smoothly changed to {targetWeight:F2}");
         }
 
@@ -192,9 +192,9 @@ namespace SpineTool
             }
 
             IkConstraint ik = ikConstraints[ikName];
-            ik.BendDirection = direction > 0 ? 1 : -1;
+            ik.Pose.BendDirection = direction > 0 ? 1 : -1;
 
-            Log($"IK '{ikName}' bend direction set to {ik.BendDirection}");
+            Log($"IK '{ikName}' bend direction set to {ik.Pose.BendDirection}");
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace SpineTool
             }
 
             IkConstraint ik = ikConstraints[ikName];
-            ik.Compress = compress;
+            ik.Pose.Compress = compress;
 
             Log($"IK '{ikName}' compress set to {compress}");
         }
@@ -226,7 +226,7 @@ namespace SpineTool
             }
 
             IkConstraint ik = ikConstraints[ikName];
-            ik.Stretch = stretch;
+            ik.Pose.Stretch = stretch;
 
             Log($"IK '{ikName}' stretch set to {stretch}");
         }
@@ -242,7 +242,7 @@ namespace SpineTool
         {
             foreach (var kvp in ikConstraints)
             {
-                kvp.Value.Mix = active ? 1f : 0f;
+                kvp.Value.Pose.Mix = active ? 1f : 0f;
             }
 
             Log($"All IK {(active ? "enabled" : "disabled")}");
@@ -256,7 +256,7 @@ namespace SpineTool
             float clampedWeight = Mathf.Clamp01(weight);
             foreach (var kvp in ikConstraints)
             {
-                kvp.Value.Mix = clampedWeight;
+                kvp.Value.Pose.Mix = clampedWeight;
             }
 
             Log($"All IK weight set to {clampedWeight:F2}");
@@ -283,7 +283,7 @@ namespace SpineTool
         public bool IsIKActive(string ikName)
         {
             if (!ikConstraints.ContainsKey(ikName)) return false;
-            return ikConstraints[ikName].Mix > 0f;
+            return ikConstraints[ikName].Pose.Mix > 0f;
         }
 
         /// <summary>
@@ -292,7 +292,7 @@ namespace SpineTool
         public float GetIKWeight(string ikName)
         {
             if (!ikConstraints.ContainsKey(ikName)) return 0f;
-            return ikConstraints[ikName].Mix;
+            return ikConstraints[ikName].Pose.Mix;
         }
 
         /// <summary>
@@ -333,7 +333,7 @@ namespace SpineTool
                 return;
             }
 
-            IkConstraint ikConstraint = skeletonAnimation.Skeleton.FindIkConstraint(ikName);
+            IkConstraint ikConstraint = skeletonAnimation.Skeleton.FindConstraint<IkConstraint>(ikName);
             if (ikConstraint != null)
             {
                 ikConstraints[ikName] = ikConstraint;
@@ -373,13 +373,17 @@ namespace SpineTool
                 return;
             }
 
-            var ikConstraints = skeletonAnimation.Skeleton.IkConstraints;
-            Debug.Log($"Total IK Constraints: {ikConstraints.Count}");
-
-            foreach (var ik in ikConstraints)
+            var constraints = skeletonAnimation.Skeleton.Constraints;
+            int ikCount = 0;
+            foreach (var constraint in constraints)
             {
-                Debug.Log($"  - {ik.Data.Name} (Active: {ik.Mix > 0f}, Weight: {ik.Mix:F2})");
+                if (constraint is not IkConstraint ik) continue;
+
+                ikCount++;
+                Debug.Log($"  - {ik.Data.Name} (Active: {ik.Pose.Mix > 0f}, Weight: {ik.Pose.Mix:F2})");
             }
+
+            Debug.Log($"Total IK Constraints: {ikCount}");
         }
 
         [ContextMenu("Test: Toggle All IK")]
@@ -388,7 +392,7 @@ namespace SpineTool
             bool anyActive = false;
             foreach (var ik in ikConstraints.Values)
             {
-                if (ik.Mix > 0f)
+                if (ik.Pose.Mix > 0f)
                 {
                     anyActive = true;
                     break;

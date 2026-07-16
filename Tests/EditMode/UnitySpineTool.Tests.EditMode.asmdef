@@ -1,21 +1,28 @@
 {
-    "name": "UnitySpineTool.Editor",
-    "rootNamespace": "",
+    "name": "UnitySpineTool.Tests.EditMode",
+    "rootNamespace": "UnitySpineTool.Tests",
     "references": [
         "UnitySpineTool",
+        "UnitySpineTool.Editor",
+        "UnitySpineTool.VAT",
+        "UnitySpineTool.VAT.Editor",
         "spine-csharp",
         "spine-unity",
-        "spine-unity-editor"
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
     "defineConstraints": [
+        "UNITY_INCLUDE_TESTS",
         "SPINE_UNITY"
     ],
     "versionDefines": [

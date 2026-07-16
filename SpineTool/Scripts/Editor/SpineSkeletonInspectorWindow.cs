@@ -199,7 +199,7 @@ namespace SpineTool.Editor
                 {
                     // 스킨 변경
                     selectedSkeleton.Skeleton.SetSkin(skin);
-                    selectedSkeleton.Skeleton.SetSlotsToSetupPose();
+                    selectedSkeleton.Skeleton.SetupPoseSlots();
                     EditorUtility.SetDirty(selectedSkeleton);
                 }
 
@@ -228,7 +228,7 @@ namespace SpineTool.Editor
             EditorGUI.indentLevel++;
 
             // 현재 재생 중인 애니메이션
-            TrackEntry currentTrack = selectedSkeleton.AnimationState?.GetCurrent(0);
+            TrackEntry currentTrack = selectedSkeleton.AnimationState?.GetTrack(0);
             string currentAnim = currentTrack?.Animation.Name ?? "None";
             EditorGUILayout.LabelField($"Current: {currentAnim}", EditorStyles.boldLabel);
 
@@ -278,7 +278,14 @@ namespace SpineTool.Editor
 
         private void DrawIKConstraintsSection()
         {
-            var ikConstraints = selectedSkeleton.Skeleton.IkConstraints;
+            var ikConstraints = new List<IkConstraint>();
+            foreach (var constraint in selectedSkeleton.Skeleton.Constraints)
+            {
+                if (constraint is IkConstraint ikConstraint)
+                {
+                    ikConstraints.Add(ikConstraint);
+                }
+            }
 
             showIKConstraints = EditorGUILayout.Foldout(showIKConstraints, $"🦴 IK Constraints ({ikConstraints.Count})", true, EditorStyles.foldoutHeader);
             if (!showIKConstraints) return;
@@ -315,7 +322,7 @@ namespace SpineTool.Editor
                     GUI.contentColor = originalColor;
 
                     // Weight
-                    EditorGUILayout.LabelField($"{ik.Mix:F2}", GUILayout.Width(60));
+                    EditorGUILayout.LabelField($"{ik.Pose.Mix:F2}", GUILayout.Width(60));
 
                     // Target Bone
                     string targetName = ik.Target?.Data.Name ?? "None";
@@ -324,7 +331,7 @@ namespace SpineTool.Editor
                     // 토글 버튼
                     if (GUILayout.Button("Toggle", GUILayout.Width(60)))
                     {
-                        ik.Mix = ik.Mix > 0f ? 0f : 1f;
+                        ik.Pose.Mix = ik.Pose.Mix > 0f ? 0f : 1f;
                     }
 
                     EditorGUILayout.EndHorizontal();
@@ -341,7 +348,14 @@ namespace SpineTool.Editor
 
         private void DrawTransformConstraintsSection()
         {
-            var constraints = selectedSkeleton.Skeleton.TransformConstraints;
+            var constraints = new List<TransformConstraint>();
+            foreach (var constraint in selectedSkeleton.Skeleton.Constraints)
+            {
+                if (constraint is TransformConstraint transformConstraint)
+                {
+                    constraints.Add(transformConstraint);
+                }
+            }
 
             showTransformConstraints = EditorGUILayout.Foldout(showTransformConstraints, $"↔️ Transform Constraints ({constraints.Count})", true, EditorStyles.foldoutHeader);
             if (!showTransformConstraints) return;
@@ -366,7 +380,7 @@ namespace SpineTool.Editor
                     EditorGUILayout.LabelField(constraint.Active ? "Active" : "Inactive", GUILayout.Width(60));
                     GUI.contentColor = originalColor;
 
-                    EditorGUILayout.LabelField($"Mix: {constraint.MixRotate:F2} / {constraint.MixX:F2} / {constraint.MixY:F2}");
+                    EditorGUILayout.LabelField($"Mix: {constraint.Pose.MixRotate:F2} / {constraint.Pose.MixX:F2} / {constraint.Pose.MixY:F2}");
 
                     EditorGUILayout.EndHorizontal();
                 }
@@ -382,7 +396,14 @@ namespace SpineTool.Editor
 
         private void DrawPathConstraintsSection()
         {
-            var constraints = selectedSkeleton.Skeleton.PathConstraints;
+            var constraints = new List<PathConstraint>();
+            foreach (var constraint in selectedSkeleton.Skeleton.Constraints)
+            {
+                if (constraint is PathConstraint pathConstraint)
+                {
+                    constraints.Add(pathConstraint);
+                }
+            }
 
             showPathConstraints = EditorGUILayout.Foldout(showPathConstraints, $"🛤️ Path Constraints ({constraints.Count})", true, EditorStyles.foldoutHeader);
             if (!showPathConstraints) return;
@@ -407,7 +428,7 @@ namespace SpineTool.Editor
                     EditorGUILayout.LabelField(constraint.Active ? "Active" : "Inactive", GUILayout.Width(60));
                     GUI.contentColor = originalColor;
 
-                    EditorGUILayout.LabelField($"Position: {constraint.Position:F2}");
+                    EditorGUILayout.LabelField($"Position: {constraint.Pose.Position:F2}");
 
                     EditorGUILayout.EndHorizontal();
                 }
@@ -443,9 +464,9 @@ namespace SpineTool.Editor
                     EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                     EditorGUILayout.LabelField(eventData.Name, EditorStyles.boldLabel);
                     EditorGUI.indentLevel++;
-                    EditorGUILayout.LabelField($"Int: {eventData.Int}");
-                    EditorGUILayout.LabelField($"Float: {eventData.Float}");
-                    EditorGUILayout.LabelField($"String: {eventData.String}");
+                    EditorGUILayout.LabelField($"Int: {eventData.SetupPose.Int}");
+                    EditorGUILayout.LabelField($"Float: {eventData.SetupPose.Float}");
+                    EditorGUILayout.LabelField($"String: {eventData.SetupPose.String}");
                     EditorGUI.indentLevel--;
                     EditorGUILayout.EndVertical();
                 }
@@ -476,9 +497,10 @@ namespace SpineTool.Editor
                 EditorGUILayout.LabelField(bone.Data.Name, EditorStyles.boldLabel);
                 EditorGUI.indentLevel++;
 
-                EditorGUILayout.LabelField($"Position: ({bone.X:F2}, {bone.Y:F2})");
-                EditorGUILayout.LabelField($"Rotation: {bone.Rotation:F2}°");
-                EditorGUILayout.LabelField($"Scale: ({bone.ScaleX:F2}, {bone.ScaleY:F2})");
+                BonePose pose = bone.AppliedPose;
+                EditorGUILayout.LabelField($"Position: ({pose.X:F2}, {pose.Y:F2})");
+                EditorGUILayout.LabelField($"Rotation: {pose.Rotation:F2}°");
+                EditorGUILayout.LabelField($"Scale: ({pose.ScaleX:F2}, {pose.ScaleY:F2})");
 
                 if (bone.Parent != null)
                 {
@@ -515,8 +537,10 @@ namespace SpineTool.Editor
                 EditorGUI.indentLevel++;
 
                 EditorGUILayout.LabelField($"Bone: {slot.Bone.Data.Name}");
-                EditorGUILayout.LabelField($"Attachment: {slot.Attachment?.Name ?? "None"}");
-                EditorGUILayout.LabelField($"Color: ({slot.R:F2}, {slot.G:F2}, {slot.B:F2}, {slot.A:F2})");
+                SlotPose pose = slot.AppliedPose;
+                UnityEngine.Color color = pose.GetColor();
+                EditorGUILayout.LabelField($"Attachment: {pose.Attachment?.Name ?? "None"}");
+                EditorGUILayout.LabelField($"Color: ({color.r:F2}, {color.g:F2}, {color.b:F2}, {color.a:F2})");
 
                 EditorGUI.indentLevel--;
                 EditorGUILayout.EndVertical();

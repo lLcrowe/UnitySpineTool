@@ -229,10 +229,10 @@ namespace SpineVAT.Editor
             }
 
             // 2단계: 첫 프레임 샘플링으로 버텍스 수 결정 + 공유 메쉬 생성
-            skeleton.SetToSetupPose();
+            skeleton.SetupPose();
             var firstAnim = clipInfos[0].animation;
-            firstAnim.Apply(skeleton, 0, 0, false, null, 1f, MixBlend.Setup, MixDirection.In);
-            skeleton.UpdateWorldTransform(Skeleton.Physics.Update);
+            firstAnim.Apply(skeleton, 0, 0, false, null, 1f, MixFrom.Setup, false, false, false);
+            skeleton.UpdateWorldTransform(Spine.Physics.Update);
 
             // MeshGenerator로 메쉬 추출
             var meshGenerator = new MeshGenerator();
@@ -248,7 +248,7 @@ namespace SpineVAT.Editor
             instructionBuilder.Clear();
 
             // Skeleton의 DrawOrder로 instruction 생성
-            var drawOrder = skeleton.DrawOrder;
+            var drawOrder = skeleton.DrawOrder.AppliedPose;
             var submeshInstruction = new SubmeshInstruction();
             submeshInstruction.skeleton = skeleton;
             submeshInstruction.startSlot = 0;
@@ -262,7 +262,7 @@ namespace SpineVAT.Editor
             for (int s = 0; s < drawOrder.Count; s++)
             {
                 var slot = drawOrder.Items[s];
-                var attachment = slot.Attachment;
+                var attachment = slot.AppliedPose.Attachment;
                 if (attachment is RegionAttachment regionAtt)
                 {
                     submeshInstruction.rawTriangleCount += 6;
@@ -344,9 +344,9 @@ namespace SpineVAT.Editor
                         ? Mathf.Min((float)f / (info.frameCount - 1) * info.duration, info.duration)
                         : 0f;
 
-                    skeleton.SetToSetupPose();
-                    info.animation.Apply(skeleton, 0, time, false, null, 1f, MixBlend.Setup, MixDirection.In);
-                    skeleton.UpdateWorldTransform(Skeleton.Physics.Update);
+                    skeleton.SetupPose();
+                    info.animation.Apply(skeleton, 0, time, false, null, 1f, MixFrom.Setup, false, false, false);
+                    skeleton.UpdateWorldTransform(Spine.Physics.Update);
 
                     // 메쉬 재생성
                     meshGenerator.Begin();

@@ -2,6 +2,14 @@
 
 Unity에서 Spine2D 애니메이션 작업을 위한 강력한 에디터 도구 모음입니다.
 
+## 호환 버전
+
+- Unity 6000.3 이상
+- Spine C# Runtime 4.3.39
+- Spine Unity Runtime 4.3.98
+
+`com.esotericsoftware.spine.spine-unity` 패키지를 설치하면 `SPINE_UNITY` 심볼은 asmdef의 `versionDefines`에서 자동으로 활성화됩니다.
+
 ## ✨ 주요 기능
 
 ### 🎬 1. Animation Preview (에디터 모드 애니메이션 재생)
@@ -803,7 +811,7 @@ public class ComboSystem : MonoBehaviour
 ## 🔧 트러블슈팅
 
 ### "SPINE_UNITY 심볼이 정의되지 않았습니다" 오류
-**해결:** `Project Settings → Player → Scripting Define Symbols`에 `SPINE_UNITY` 추가
+**해결:** `com.esotericsoftware.spine.spine-csharp`와 `com.esotericsoftware.spine.spine-unity` 4.3 패키지가 함께 설치됐는지 확인하세요. 심볼을 Player Settings에 수동 추가할 필요는 없습니다.
 
 ### 애니메이션이 에디터에서 재생되지 않음
 **해결:**

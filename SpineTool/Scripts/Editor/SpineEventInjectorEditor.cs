@@ -125,12 +125,12 @@ namespace InteractAnimation.Editor
                 {
                     // Update skeleton animation with real deltaTime
                     previewSkeletonAnimation.Update(deltaTime * playbackSpeed);
-                    previewSkeletonAnimation.LateUpdate();
+                    previewSkeletonAnimation.Renderer.UpdateMesh();
 
                     // Also update TrackTime for scrubbing
                     if (previewSkeletonAnimation.AnimationState != null)
                     {
-                        var trackEntry = previewSkeletonAnimation.AnimationState.GetCurrent(0);
+                        var trackEntry = previewSkeletonAnimation.AnimationState.GetTrack(0);
                         if (trackEntry != null)
                         {
                             trackEntry.TrackTime = currentTime;
@@ -534,7 +534,7 @@ namespace InteractAnimation.Editor
                             trackEntry.TimeScale = 0f;
                         }
                         previewSkeletonAnimation.Update(0);
-                        previewSkeletonAnimation.LateUpdate();
+                        previewSkeletonAnimation.Renderer.UpdateMesh();
                     }
                     catch (Exception ex)
                     {
@@ -667,7 +667,7 @@ namespace InteractAnimation.Editor
                                 trackEntry.TimeScale = 0f;
                             }
                             previewSkeletonAnimation.Update(0);
-                            previewSkeletonAnimation.LateUpdate();
+                            previewSkeletonAnimation.Renderer.UpdateMesh();
                         }
                         catch (Exception previewEx)
                         {
@@ -1252,7 +1252,7 @@ namespace InteractAnimation.Editor
 
             try
             {
-                var trackEntry = previewSkeletonAnimation.AnimationState.GetCurrent(0);
+                var trackEntry = previewSkeletonAnimation.AnimationState.GetTrack(0);
 
                 // Always set animation if track is null or different animation
                 if (trackEntry == null || trackEntry.Animation.Name != selectedAnimation)
@@ -1272,7 +1272,7 @@ namespace InteractAnimation.Editor
 
                 // Always force update to apply changes
                 previewSkeletonAnimation.Update(0);
-                previewSkeletonAnimation.LateUpdate();
+                previewSkeletonAnimation.Renderer.UpdateMesh();
 
                 // Force repaint to show the changes
                 Repaint();

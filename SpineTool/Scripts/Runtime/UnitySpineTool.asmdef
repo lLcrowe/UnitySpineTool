@@ -2,6 +2,7 @@
     "name": "UnitySpineTool",
     "rootNamespace": "",
     "references": [
+        "spine-csharp",
         "spine-unity"
     ],
     "includePlatforms": [],
@@ -15,7 +16,7 @@
     ],
     "versionDefines": [
         {
-            "name": "spine-unity",
+            "name": "com.esotericsoftware.spine.spine-unity",
             "expression": "",
             "define": "SPINE_UNITY"
         }

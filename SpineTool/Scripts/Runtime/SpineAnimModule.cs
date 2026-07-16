@@ -226,7 +226,7 @@ namespace SpineTool
         {
             if (skeletonAnimation == null || skeletonAnimation.Skeleton == null) return;
 
-            skeletonAnimation.Skeleton.SetToSetupPose();
+            skeletonAnimation.Skeleton.SetupPose();
             Log("Set to setup pose");
         }
 
@@ -258,7 +258,7 @@ namespace SpineTool
             if (skin != null)
             {
                 skeletonAnimation.Skeleton.SetSkin(skin);
-                skeletonAnimation.Skeleton.SetSlotsToSetupPose();
+                skeletonAnimation.Skeleton.SetupPoseSlots();
                 Log($"Skin changed to: {skinName}");
             }
             else
@@ -428,7 +428,7 @@ namespace SpineTool
         {
             if (skeletonAnimation == null || skeletonAnimation.AnimationState == null) return null;
 
-            return skeletonAnimation.AnimationState.GetCurrent(trackIndex);
+            return skeletonAnimation.AnimationState.GetTrack(trackIndex);
         }
 
         /// <summary>

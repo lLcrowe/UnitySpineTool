@@ -101,7 +101,7 @@ namespace SpineTool
 
                 // BoneFollower 추가 (Spine의 본을 따라가도록)
                 var follower = attachPointObj.AddComponent<BoneFollower>();
-                follower.skeletonRenderer = masterAnimModule.SkeletonAnimation;
+                follower.skeletonRenderer = masterAnimModule.SkeletonAnimation.Renderer as SkeletonRenderer;
                 follower.SetBone(attachBoneName);
 
                 Log($"Attach point created: {attachBoneName}");

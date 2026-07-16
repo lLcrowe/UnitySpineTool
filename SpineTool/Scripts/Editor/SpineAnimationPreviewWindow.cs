@@ -239,19 +239,19 @@ namespace SpineTool.Editor
 
         private TrackEntry GetActiveTrack(SkeletonAnimation skeleton)
         {
-            if (skeleton != null && skeleton.valid && skeleton.AnimationState != null)
+            if (skeleton != null && skeleton.IsValid && skeleton.AnimationState != null)
             {
-                return skeleton.AnimationState.GetCurrent(0);
+                return skeleton.AnimationState.GetTrack(0);
             }
             return null;
         }
 
         private void SetupPose(SkeletonAnimation skeleton)
         {
-            if (skeleton == null || !skeleton.valid) return;
+            if (skeleton == null || !skeleton.IsValid) return;
 
             skeleton.AnimationState.ClearTracks();
-            skeleton.Skeleton.SetToSetupPose();
+            skeleton.Skeleton.SetupPose();
 
             EditorUtility.SetDirty(skeleton);
             SceneView.RepaintAll();
@@ -259,7 +259,7 @@ namespace SpineTool.Editor
 
         private void PlayPauseAnimation(SkeletonAnimation skeleton, string animationName, bool loop)
         {
-            if (skeleton == null || !skeleton.valid) return;
+            if (skeleton == null || !skeleton.IsValid) return;
 
             SkeletonData skeletonData = skeleton.SkeletonDataAsset.GetSkeletonData(false);
             if (skeletonData == null) return;
@@ -278,7 +278,7 @@ namespace SpineTool.Editor
             if (currentTrack == null)
             {
                 // 트랙이 비어있으면 새로 재생
-                skeletonObj.SetToSetupPose();
+                skeletonObj.SetupPose();
                 animationState.SetAnimation(0, targetAnimation, loop);
             }
             else
