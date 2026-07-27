@@ -4,8 +4,6 @@
     "references": [
         "UnitySpineTool",
         "UnitySpineTool.Editor",
-        "UnitySpineTool.VAT",
-        "UnitySpineTool.VAT.Editor",
         "spine-csharp",
         "spine-unity",
         "UnityEngine.TestRunner",
@@ -28,7 +26,7 @@
     "versionDefines": [
         {
             "name": "com.esotericsoftware.spine.spine-unity",
-            "expression": "",
+            "expression": "[4.3.0,4.4.0)",
             "define": "SPINE_UNITY"
         }
     ],

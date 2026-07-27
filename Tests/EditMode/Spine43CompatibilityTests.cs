@@ -10,8 +10,6 @@ namespace UnitySpineTool.Tests
         {
             Assert.That(typeof(SpineTool.SpineAnimModule).Assembly.GetName().Name, Is.EqualTo("UnitySpineTool"));
             Assert.That(typeof(SpineTool.Editor.SpineAnimationPreviewWindow).Assembly.GetName().Name, Is.EqualTo("UnitySpineTool.Editor"));
-            Assert.That(typeof(SpineVAT.SpineVatData).Assembly.GetName().Name, Is.EqualTo("UnitySpineTool.VAT"));
-            Assert.That(typeof(SpineVAT.Editor.SpineVatBaker).Assembly.GetName().Name, Is.EqualTo("UnitySpineTool.VAT.Editor"));
         }
 
         [Test]

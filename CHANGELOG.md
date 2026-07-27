@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.0] - 2026-07-27
+
+### Changed
+
+- 기본 `SkeletonAnimation`·`SkeletonRenderer` 제어 패키지로 역할을 축소했습니다.
+- VAT runtime, baker, preview, shader와 examples를 패키지에서 제거했습니다.
+
+## [1.1.1] - 2026-07-27
+
+### Fixed
+
+- Unity의 UPM `versionDefines` 형식에 맞는 Spine 4.3 버전 범위를 지정해 `SPINE_UNITY` 심볼과 UnitySpineTool 어셈블리가 실제로 활성화되도록 수정했습니다.
+
 ## [1.1.0] - 2026-07-16
 
 ### Changed
