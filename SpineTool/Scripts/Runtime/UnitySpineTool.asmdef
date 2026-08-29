@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "spine-csharp",
-        "spine-unity"
+        "spine-unity",
+        "StandardLibrary"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

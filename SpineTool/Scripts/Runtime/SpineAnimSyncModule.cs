@@ -1,4 +1,5 @@
 using UnityEngine;
+using lLCroweTool.Diagnostics;
 using System;
 
 #if SPINE_UNITY
@@ -374,13 +375,15 @@ namespace SpineTool
             if (masterTransform == null || slaveTransform == null) return;
 
             // Master → Slave 연결선
-            Gizmos.color = isSyncing ? Color.green : Color.gray;
+            Gizmos.color = isSyncing
+                ? GizmoSemanticPalette.Valid
+                : GizmoSemanticPalette.WithAlpha(GizmoSemanticPalette.Neutral, 0.55f);
             Gizmos.DrawLine(masterTransform.position, slaveTransform.position);
 
             // Attach Point
             if (attachPoint != null)
             {
-                Gizmos.color = Color.cyan;
+                Gizmos.color = GizmoSemanticPalette.Mechanism;
                 Gizmos.DrawWireSphere(attachPoint.position, 0.1f);
             }
 
@@ -388,7 +391,7 @@ namespace SpineTool
             if (masterTransform != null)
             {
                 Vector3 offsetPos = masterTransform.position + slaveLocalOffset;
-                Gizmos.color = Color.yellow;
+                Gizmos.color = GizmoSemanticPalette.Movement;
                 Gizmos.DrawWireSphere(offsetPos, 0.05f);
             }
         }

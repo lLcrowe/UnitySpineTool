@@ -7,5 +7,7 @@
     "author": {
         "name": "lLcrowe"
     },
-    "dependencies": {}
+    "dependencies": {
+        "com.llcrowe.standard-library": "1.0.0"
+    }
 }
